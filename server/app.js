@@ -4,6 +4,8 @@ let mongoose = require('mongoose');
 let option = { useNewUrlParser: true }
 const intersect = require('./intersect.json')
 const axios = require('axios')
+const hostname = "localhost"
+const PORT = process.env.PORT || 8888
 
 mongoose.connect(`mongodb://${process.env.dbuser}:${process.env.dbpassword}@ds163822.mlab.com:63822/plane`, option).then(
   () => { console.log('Successfully connected');},
@@ -154,5 +156,9 @@ function algoVraimentComplique(flowData) {
   return `${a} || ${b} || ${ab}`;
 }
 
-server.listen(process.env.PORT || 4000)
-console.log("Started")
+server.listen(PORT, hostname, () => {
+    console.log("Started")
+  
+    console.log(`Server running at http://${hostname}:${PORT}/`);
+  
+  });
