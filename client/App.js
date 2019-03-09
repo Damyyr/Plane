@@ -47,14 +47,24 @@ export default class App extends React.Component {
     this.state.socket.on("feedback-answer", resp => {
       alert(resp.data)
     })
+
+    this.state.socket.on("lightStates", resp => {
+
+    })
+
+    // setInterval(this.serverCallLightState, 4000)
     
     this.createMarkers();
   }
 
+  serverCallLightState = () => {
+    this.state.socket.emit("lightStates", { data: [661] })
+  }
+  
   createMarkers = () => {
     j = 1;
     for (const i of intersect) {
-      if (i.lat === null || i.long === null || i.Int_no === null) {
+      if (i.Lat === null || i.Long === null || i.IntNo === null) {
         continue;
       }
       
@@ -64,9 +74,9 @@ export default class App extends React.Component {
         user: false,
         title: "Intersection",
         description: "Intersection",
-        id:i.Int_no,
-        coordinate:{latitude: i.lat,
-        longitude: i.long},
+        id:i.IntNo,
+        coordinate:{latitude: i.Lat,
+        longitude: i.Long},
         image:imgLight,
         radius: 7,
         color: (i.Pieton) ? orange : green
@@ -81,10 +91,10 @@ export default class App extends React.Component {
       this.setState({ markers: t})
       j++
       
-        this.createCirclesAround(i, 0.0001/1.5, -0.0001, "N");
-        this.createCirclesAround(i, -0.0001/1.5, +0.0001, "S");
-        this.createCirclesAround(i, 0.0001, 0.0001, "E");
-        this.createCirclesAround(i, -0.0001, -0.0001, "W");
+      this.createCirclesAround(i, 0.0001/1.5, -0.0001, "N");
+      this.createCirclesAround(i, -0.0001/1.5, +0.0001, "S");
+      this.createCirclesAround(i, 0.0001, 0.0001, "E");
+      this.createCirclesAround(i, -0.0001, -0.0001, "W");
     }
   }
 
@@ -113,9 +123,9 @@ export default class App extends React.Component {
       key: j,
       dir: dir,
       user: false,
-      id:i.Int_no,
-      coordinate:{latitude: i.lat+lat,
-      longitude: i.long+long},
+      id:i.IntNo,
+      coordinate:{latitude: i.Lat+lat,
+      longitude: i.Long+long},
       image:imgLight,
       radius: 4,
       color: (dir === "N" || dir === "S") ? green : red
@@ -124,7 +134,7 @@ export default class App extends React.Component {
     t.push(m)
     this.setState({ markers: t})
     j++
-      
+
     this.createLinesAround(m, lat, long, dir)
   }
 
@@ -190,7 +200,7 @@ export default class App extends React.Component {
       return (
         <View style={styles.container}>
         <View style={styles.button}>
-          <Button title="ALLO" onPress={this.onPressButton}/>
+          <Button title="ALLO" onPress={this.serverCallLightState}/>
         </View>
         <View style={styles.toast}>
             <TouchableHighlight

@@ -73,9 +73,9 @@ let IntersectModel = mongoose.model('IntersectModel', intersectSchema);
 //   }
 
 //   let nh = {
-//     Int_no: i.Int_no,
-//     long: i.long,
-//     lat: i.lat,
+//     Int_no: i.IntNo,
+//     long: i.Long,
+//     lat: i.Lat,
 //     Pieton: i.Pieton,
 //     nbPieton: i.Nbr_Pieton,
 //     Malvoyant: i.Malvoyant,
