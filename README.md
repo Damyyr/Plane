@@ -76,9 +76,34 @@ du manque de tests réels possibles de notre application, puisque seul des simul
 pourrait être utilisés pour modéliser le temps qu'une telle solution pourrait sauver.
 
 ## Les bons coups
+
+Durant notre exploration des différentes problématiques associés à l'implication 
+citoyenne, nous avons découvert les bénéfices environnementaux de notre application.
+En effet, si les automobilistes canadiens évitaient la marche au ralenti pendant à 
+peine trois minutes par jour, les émissions de CO2 pourraient être réduites de 1,4 millions 
+de tonnes par année. Cela équivaut à économiser 630 millions de litres de carburant ou 
+encore à retirer 320 000 voitures de la circulation annuellement. De la même manière, il 
+suffit de 14 minutes de marche au ralenti pour brûler 0,4 litre d’essence et émettre 1 kg 
+de CO2 dans l’atmosphère.
+
 ## Ce qu'on a appris
+
+Grâce au conférences, nous avons aussi appris que la ville de Québec disposait d'un système 
+de gestion artérielle et d'un système permettant aux chauffeurs d'autobus d'appeler une 
+lumière blanche leur donnant la priorité dans les intersections.
+
 ## La suite pour votre application
+
+Comme mentionné plus haut, il serait envisageable d'ajouter un système de reconnaissance de voix
+pour nous permettre de faciliter l'interaction avec les citoyens. Nous avons aussi pensé à 
+l'intégration de notre application dans un système d'exploitation pour voitures tels
+Apple CarPlay.
+
 ## Built With
+
+* `React Native` utilisant `Expo`
+* `Node` avec `socket.io` pour des mises à jour de l'interface en temps-réel
+* `MongoDB`
 
 HackQc 2019
 
