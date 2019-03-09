@@ -7,6 +7,8 @@ import imgLight from './assets/images/light.png';
 
 import intersect from './assets/data/intersect.json'
 
+import openSocket from 'socket.io-client';
+
 const width = Dimensions.get('window').width
 const height = Dimensions.get('window').height
 
