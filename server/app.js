@@ -1,33 +1,89 @@
-
-const http = require('http')
-let server = http.createServer()
+const server = require("http").createServer()
 const io = require("socket.io")(server)
 let mongoose = require('mongoose');
 let option = { useNewUrlParser: true }
 const intersect = require('./intersect.json')
 const axios = require('axios')
-const hostname = "localhost"
-const PORT = process.env.PORT || 8888
 
 mongoose.connect(`mongodb://${process.env.dbuser}:${process.env.dbpassword}@ds163822.mlab.com:63822/plane`, option).then(
   () => { console.log('Successfully connected');},
   err => { throw err }
 );
 
+let branchesSchema = mongoose.Schema({
+  currentTimer: Number,
+  direction: String,
+  trafficInd: Number
+})
+
+let directionSchema = mongoose.Schema({
+  directionTimer: Number,
+  direction: String
+})
+
 let intersectSchema = mongoose.Schema({
   Int_no: Number,
   long: Number,
   lat: Number,
-  Pieton: Boolean
+  Pieton: Boolean,
+  Malvoyant: Boolean,
+  nbPieton: Number,
+  defaultTimer: Number,
+  directions: [directionSchema],
+  branches: [branchesSchema]
 });
 
-var IntersectModel = mongoose.model('IntersectModel', intersectSchema);
-
-// let IntersectModel = mongoose.model('IntersectModel', userSchema );
+let IntersectModel = mongoose.model('IntersectModel', intersectSchema);
 
 // for (const i of intersect) {
+    
+//   let dirA = {
+//     directionTimer: i.Direction1,
+//     direction: "A"
+//   }
 
-//   let Intersect_inst = new IntersectModel(i);
+//   let dirB = {
+//     directionTimer: i.Direction2,
+//     direction: "B"
+//   }
+
+//   let branchesN = {
+//     currentTimer: 0,
+//     direction: "N",
+//     trafficInd: 0
+//   }
+
+//   let branchesS = {
+//     currentTimer: 0,
+//     direction: "S",
+//     trafficInd: 0
+//   }
+
+//   let branchesE = {
+//     currentTimer: 0,
+//     direction: "E",
+//     trafficInd: 0
+//   }
+
+//   let branchesW = {
+//     currentTimer: 0,
+//     direction: "W",
+//     trafficInd: 0
+//   }
+
+//   let nh = {
+//     Int_no: i.Int_no,
+//     long: i.long,
+//     lat: i.lat,
+//     Pieton: i.Pieton,
+//     nbPieton: i.Nbr_Pieton,
+//     Malvoyant: i.Malvoyant,
+//     defaultTimer: 0,
+//     directions: [dirA, dirB],
+//     branches: [branchesN, branchesS, branchesE, branchesW]
+//   }
+
+//   let Intersect_inst = new IntersectModel(nh);
 
 //   Intersect_inst.save(function(err) {
 //     if (err) throw err;
@@ -69,9 +125,5 @@ function algoVraimentComplique(flowData) {
   return `${a} || ${b} || ${ab}`;
 }
 
-
-server.listen(PORT, hostname, () => {
-
-  console.log(`Server running at http://${hostname}:${PORT}/`);
-
-});
+server.listen(process.env.PORT || 4000)
+console.log("Started")
