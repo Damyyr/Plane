@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Dimensions, ScrollView } from 'react-native';
+import { StyleSheet, View, Dimensions, ScrollView, Button } from 'react-native';
 import { AppLoading, Asset, Font, Icon } from 'expo';
 import { MapView } from "expo";
 import imgCar from './assets/images/car.png';
@@ -15,8 +15,7 @@ const height = Dimensions.get('window').height
 
 const green = "rgba(0, 153, 51, 0.8)"
 const red = "rgba(255, 51, 0, 0.8)"
-const redHex = "#ff0000"
-const greenHex = "#009933"
+const orange = "rgba(255, 204, 0, 0.8)"
 
 console.ignoredYellowBox = ['Remote debugger'];
 import { YellowBox } from 'react-native';
@@ -32,23 +31,25 @@ export default class App extends React.Component {
       key:0,
       user: true,
       radius:15,
-      coordinate: {latitude: 46.816592,
-      longitude: -71.200432},
+      // coordinate: {latitude: 46.816592, longitude: -71.200432},
+      coordinate: {latitude: 45.534964, longitude: -73.559118},
       title:"title",
       description:"description",
       image:imgCar,
       color: 'rgba(230,238,255,0.5)'
-    }]
+    }],
+    socket: openSocket('https://planehack.herokuapp.com/')
   };
 
   componentWillMount = () => {
-    // var io = openSocket('https://planehack.herokuapp.com/');
+    this.state.socket.on("feedback-answer", resp => {
+      alert(resp.data)
+    })
     
-    this.renderMarkers();
-    // setInterval(this.changeColor, 100)
+    this.createMarkers();
   }
 
-  renderMarkers = () => {
+  createMarkers = () => {
     j = 1;
     for (const i of intersect) {
       if (i.lat === null || i.long === null || i.Int_no === null) {
@@ -66,7 +67,7 @@ export default class App extends React.Component {
         longitude: i.long},
         image:imgLight,
         radius: 7,
-        color: green
+        color: (i.Pieton) ? orange : green
       }
 
       if (calcDist(m, this.state.markers.filter(elm => elm.user === true)[0]) > 1000) {
@@ -78,167 +79,57 @@ export default class App extends React.Component {
       this.setState({ markers: t})
       j++
 
-      this.createCirclesAround(i);
-      this.createCirclesAround(i);
-      this.createCirclesAround(i);
-      this.createCirclesAround(i);
+      this.createCirclesAround(i, 0.0001/1.5, -0.0001, "N");
+      this.createCirclesAround(i, -0.0001/1.5, +0.0001, "S");
+      this.createCirclesAround(i, 0.0001, 0.0001, "E");
+      this.createCirclesAround(i, -0.0001, -0.0001, "W");
     }
   }
 
-  createLinesAround = () => {
-    
-  }
-
-  createCirclesAround = (i) => {
+  createLinesAround = (p, lat, long, dir) => {
     let m = {
-      type:"circle",
+      type:"polyline",
       key: j,
+      dir: dir,
       user: false,
-      title: "Intersection",
-      description: "Intersection",
-      id:i.Int_no,
-      coordinate:{latitude: i.lat+0.0001,
-      longitude: i.long},
-      image:imgLight,
-      radius: 4,
+      id:p.id,
+      coordinate:[{latitude: p.coordinate.latitude,
+      longitude: p.coordinate.longitude},
+      {latitude: p.coordinate.latitude+lat,
+      longitude: p.coordinate.longitude+long}],
       color: green
     }
     let t = this.state.markers;
     t.push(m)
     this.setState({ markers: t})
     j++
+  }
 
-    m = {
-      type:"polyline",
-      key: j,
-      user: false,
-      id:i.Int_no,
-      coordinate:[{latitude: i.lat+0.0001,
-      longitude: i.long},
-      {latitude: i.lat+0.0001*2,
-      longitude: i.long}],
-      image:imgLight,
-      radius: 4,
-      color: greenHex
-    }
-    t = this.state.markers;
-    t.push(m)
-    this.setState({ markers: t})
-    j++
-
-    m = {
+  createCirclesAround = (i, lat, long, dir) => {
+    let m = {
       type:"circle",
       key: j,
+      dir: dir,
       user: false,
-      title: "Intersection",
-      description: "Intersection",
       id:i.Int_no,
-      coordinate:{latitude: i.lat-0.0001,
-      longitude: i.long},
+      coordinate:{latitude: i.lat+lat,
+      longitude: i.long+long},
       image:imgLight,
       radius: 4,
-      color: green
+      color: (dir === "N" || dir === "S") ? green : red
     }
-    t = this.state.markers;
+    let t = this.state.markers;
     t.push(m)
     this.setState({ markers: t})
     j++
 
-    m = {
-      type:"polyline",
-      key: j,
-      user: false,
-      id:i.Int_no,
-      coordinate:[{latitude: i.lat-0.0001,
-      longitude: i.long},
-      {latitude: i.lat-0.0001*2,
-      longitude: i.long}],
-      image:imgLight,
-      radius: 4,
-      color: greenHex
-    }
-    t = this.state.markers;
-    t.push(m)
-    this.setState({ markers: t})
-    j++
-
-    m = {
-      type:"circle",
-      key: j,
-      user: false,
-      title: "Intersection",
-      description: "Intersection",
-      id:i.Int_no,
-      coordinate:{latitude: i.lat,
-      longitude: i.long+0.0001*1.5},
-      image:imgLight,
-      radius: 4,
-      color: green
-    }
-    t = this.state.markers;
-    t.push(m)
-    this.setState({ markers: t})
-    j++
-
-    m = {
-      type:"polyline",
-      key: j,
-      user: false,
-      id:i.Int_no,
-      coordinate:[{latitude: i.lat,
-      longitude: i.long+0.0001*1.5},
-      {latitude: i.lat,
-      longitude: i.long+0.0001*1.5*2}],
-      image:imgLight,
-      radius: 4,
-      color: greenHex
-    }
-    t = this.state.markers;
-    t.push(m)
-    this.setState({ markers: t})
-    j++
-
-    m = {
-      type:"circle",
-      key: j,
-      user: false,
-      title: "Intersection",
-      description: "Intersection",
-      id:i.Int_no,
-      coordinate:{latitude: i.lat,
-      longitude: i.long-0.0001*1.5},
-      image:imgLight,
-      radius: 4,
-      color: green
-    }
-    t = this.state.markers;
-    t.push(m)
-    this.setState({ markers: t})
-    j++
-
-    m = {
-      type:"polyline",
-      key: j,
-      user: false,
-      id:i.Int_no,
-      coordinate:[{latitude: i.lat,
-      longitude: i.long-0.0001*1.5},
-      {latitude: i.lat,
-      longitude: i.long-0.0001*1.5*2}],
-      image:imgLight,
-      radius: 4,
-      color: greenHex
-    }
-    t = this.state.markers;
-    t.push(m)
-    this.setState({ markers: t})
-    j++
+    this.createLinesAround(m, lat, long, dir)
   }
 
   changeColor = () => {
     let o = this.state.markers;
     for (let k of o) {
-      if (k.user) {
+      if (k.id == 661 && k.type === "circle" && k.title !== "Intersection") {
         if (k.color == green) {
           k.color = red;
         } else {
@@ -278,6 +169,11 @@ export default class App extends React.Component {
     }
   }
 
+  onPressButton = () => {
+    // setInterval(this.changeColor, 1000)
+    this.state.socket.emit("feedback", {data: "ok"})
+  }
+
   render() {
     
     if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
@@ -291,6 +187,10 @@ export default class App extends React.Component {
     } else {
       return (
         <View style={styles.container}>
+        <View style={styles.button}>
+          <Button title="ALLO" onPress={this.onPressButton}/>
+        </View>
+
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
           <View style={styles.getStartedContainer}>
             <MapView
@@ -300,10 +200,12 @@ export default class App extends React.Component {
                 flex: 1
               }}
               initialRegion={{
-                latitude: 46.816592,
-                longitude: -71.200432,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421
+                // latitude: 46.816592,
+                // longitude: -71.200432,
+                latitude: 45.534964, 
+                longitude: -73.559118,
+                latitudeDelta: 0.0922/25,
+                longitudeDelta: 0.0421/25
               }}
               // showsTraffic={true}
             >
@@ -350,4 +252,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  button: {
+    zIndex: 99,
+    position: "absolute",
+    top: 0,
+    right: 0,
+    marginTop: 40
+  }
 });
