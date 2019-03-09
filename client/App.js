@@ -58,7 +58,15 @@ export default class App extends React.Component {
   }
 
   serverCallLightState = () => {
-    this.state.socket.emit("lightStates", { data: [661] })
+    let markersToGet = []
+    for (let marker of this.state.markers.filter(elm => elm.title === "Intersection" && elm.type === "circle")) {
+      if (calcDist(marker, this.state.markers.filter(elm => elm.user === true)[0]) > 1000) {
+        continue;
+      }
+      
+      markersToGet.push(marker)
+    }
+    this.state.socket.emit("lightStates", { data: markersToGet })
   }
 
   createMarkers = () => {
