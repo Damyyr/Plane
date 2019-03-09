@@ -29,6 +29,7 @@ let intersectSchema = mongoose.Schema({
   Malvoyant: Boolean,
   nbPieton: Number,
   defaultTimer: Number,
+  lastChange: Date,
   directions: [directionSchema],
   branches: [branchesSchema]
 });
@@ -79,6 +80,7 @@ let IntersectModel = mongoose.model('IntersectModel', intersectSchema);
 //     nbPieton: i.Nbr_Pieton,
 //     Malvoyant: i.Malvoyant,
 //     defaultTimer: 0,
+//     lastChange: Date.now(),
 //     directions: [dirA, dirB],
 //     branches: [branchesN, branchesS, branchesE, branchesW]
 //   }
