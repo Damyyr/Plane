@@ -10,12 +10,17 @@ import intersect from './assets/data/intersect.json'
 
 import openSocket from 'socket.io-client';
 
-const width = Dimensions.get('window').width
-const height = Dimensions.get('window').height
+import axios from 'axios';
 
-const green = "rgba(0, 153, 51, 0.8)"
-const red = "rgba(255, 51, 0, 0.8)"
-const orange = "rgba(255, 204, 0, 0.8)"
+const APIKey = 'key=An5uZUsNiNtFLlXVd2rB5IJ4uPG0x31X5RS6yY_tgWKbGX-exnOw9rK2QKST45Fn';
+const roadsURL = "http://dev.virtualearth.net/REST/v1/Routes/SnapToRoad?";
+
+const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
+
+const green = "rgba(0, 153, 51, 0.8)";
+const red = "rgba(255, 51, 0, 0.8)";
+const orange = "rgba(255, 204, 0, 0.8)";
 
 console.ignoredYellowBox = ['Remote debugger'];
 import { YellowBox } from 'react-native';
@@ -50,6 +55,17 @@ export default class App extends React.Component {
     this.createMarkers();
   }
 
+  async snapToRoad(path) {
+    return axios({
+      method: 'get',
+      url: roadsURL + "points=" + path + '&' + APIKey
+    }).then((resp) => {
+      return resp.data;
+    }).catch((resp) => {
+      return resp;
+    });
+  }
+
   createMarkers = () => {
     j = 1;
     for (const i of intersect) {
@@ -80,24 +96,30 @@ export default class App extends React.Component {
       this.setState({ markers: t})
       j++
 
-      this.createCirclesAround(i, 0.0001/1.5, -0.0001, "N");
-      this.createCirclesAround(i, -0.0001/1.5, +0.0001, "S");
-      this.createCirclesAround(i, 0.0001, 0.0001, "E");
-      this.createCirclesAround(i, -0.0001, -0.0001, "W");
+      
+
+        this.createCirclesAround(i, 0.0001/1.5, -0.0001, "N");
+        this.createCirclesAround(i, -0.0001/1.5, +0.0001, "S");
+        this.createCirclesAround(i, 0.0001, 0.0001, "E");
+        this.createCirclesAround(i, -0.0001, -0.0001, "W");
+        // this.createCirclesAround(i, 0, -0.0001, "N");
+        // this.createCirclesAround(i, 0, +0.0001, "S");
+        // this.createCirclesAround(i, 0.0001, 0, "E");
+        // this.createCirclesAround(i, -0.0001, 0, "W");
     }
   }
 
-  createLinesAround = (p, lat, long, dir) => {
+  createLinesAround = (p, points, dir) => {
     let m = {
       type:"polyline",
       key: j,
       dir: dir,
       user: false,
       id:p.id,
-      coordinate:[{latitude: p.coordinate.latitude,
-      longitude: p.coordinate.longitude},
-      {latitude: p.coordinate.latitude+lat,
-      longitude: p.coordinate.longitude+long}],
+      coordinate: [{latitude: points[0].coordinate.latitude,
+      longitude: points[0].coordinate.longitude},
+      {latitude: points[1].coordinate.latitude,
+      longitude: points[1].coordinate.longitude}],
       color: green
     }
     let t = this.state.markers;
@@ -124,7 +146,15 @@ export default class App extends React.Component {
     this.setState({ markers: t})
     j++
 
-    this.createLinesAround(m, lat, long, dir)
+    let pointsToSnap = m.coordinate.latitude + ',' + m.coordinate.longitude + ';';
+    let otherLat = m.coordinate.latitude + lat;
+    let otherLong = m.coordinate.longitude + long;
+    pointsToSnap += otherLat + ',' + otherLong;
+
+    this.snapToRoad(pointsToSnap).then((resp) => {
+      console.log(resp.resourceSets[0].resources[0].snappedPoints);
+      this.createLinesAround(m, resp.resourceSets[0].resources[0].snappedPoints, dir)
+    });
   }
 
   changeColor = () => {
