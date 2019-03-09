@@ -11,11 +11,6 @@ import intersect from './assets/data/intersect.json'
 
 import openSocket from 'socket.io-client';
 
-import axios from 'axios';
-
-const APIKey = 'key=An5uZUsNiNtFLlXVd2rB5IJ4uPG0x31X5RS6yY_tgWKbGX-exnOw9rK2QKST45Fn';
-const roadsURL = "http://dev.virtualearth.net/REST/v1/Routes/SnapToRoad?";
-
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
@@ -65,18 +60,7 @@ export default class App extends React.Component {
   serverCallLightState = () => {
     this.state.socket.emit("lightStates", { data: [661] })
   }
-
-  async snapToRoad(path) {
-    return axios({
-      method: 'get',
-      url: roadsURL + "points=" + path + '&' + APIKey
-    }).then((resp) => {
-      return resp.data;
-    }).catch((resp) => {
-      return resp;
-    });
-  }
-
+  
   createMarkers = () => {
     j = 1;
     for (const i of intersect) {
@@ -114,25 +98,23 @@ export default class App extends React.Component {
     }
   }
 
-  createLinesAround = (p, points, dir) => {
-    if (points[1] !== undefined) {
-      let m = {
-        type:"polyline",
-        key: j,
-        dir: dir,
-        user: false,
-        id:p.id,
-        coordinate: [{latitude: points[0].coordinate.latitude,
-        longitude: points[0].coordinate.longitude},
-        {latitude: points[1].coordinate.latitude,
-        longitude: points[1].coordinate.longitude}],
-        color: green
-      }
-      let t = this.state.markers;
-      t.push(m)
-      this.setState({ markers: t})
-      j++
+  createLinesAround = (p, lat, long, dir) => {
+    let m = {
+      type:"polyline",
+      key: j,
+      dir: dir,
+      user: false,
+      id:p.id,
+      coordinate: [{latitude: p.coordinate.latitude,
+      longitude: p.coordinate.longitude},
+      {latitude: p.coordinate.latitude + lat,
+      longitude: p.coordinate.longitude + long}],
+      color: green
     }
+    let t = this.state.markers;
+    t.push(m)
+    this.setState({ markers: t})
+    j++
   }
 
   createCirclesAround = (i, lat, long, dir) => {
@@ -153,14 +135,7 @@ export default class App extends React.Component {
     this.setState({ markers: t})
     j++
 
-    let pointsToSnap = m.coordinate.latitude + ',' + m.coordinate.longitude + ';';
-    let otherLat = m.coordinate.latitude + lat;
-    let otherLong = m.coordinate.longitude + long;
-    pointsToSnap += otherLat + ',' + otherLong;
-
-    this.snapToRoad(pointsToSnap).then((resp) => {
-      this.createLinesAround(m, resp.resourceSets[0].resources[0].snappedPoints, dir)
-    });
+    this.createLinesAround(m, lat, long, dir)
   }
 
   changeColor = () => {
@@ -237,13 +212,12 @@ export default class App extends React.Component {
             </TouchableHighlight>
             <Toast
                 ref="toast"
-                style={{backgroundColor:'red', zIndex: 98}}
-                position='top'
+                style={styles.notification}
+                position='bottom'
                 positionValue={200}
                 fadeInDuration={750}
                 fadeOutDuration={1000}
-                opacity={0.8}
-                textStyle={{color:'white'}}
+                textStyle={{color: "white"}}
             />
         </View>
 
@@ -317,11 +291,13 @@ const styles = StyleSheet.create({
   },
   toast: {
     zIndex: 99,
-    width: "100%",
-    height: "100%",
     position: "absolute",
     top: 0,
     right: 0,
     marginTop: 80
+  },
+  notification: {
+    padding: 50,
+    backgroundColor: "rgb(77, 182, 172)"
   }
 });
