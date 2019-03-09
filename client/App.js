@@ -60,7 +60,7 @@ export default class App extends React.Component {
   serverCallLightState = () => {
     this.state.socket.emit("lightStates", { data: [661] })
   }
-  
+
   createMarkers = () => {
     j = 1;
     for (const i of intersect) {
@@ -201,15 +201,11 @@ export default class App extends React.Component {
         <View style={styles.container}>
         <View style={styles.button}>
           <Button title="ALLO" onPress={this.serverCallLightState}/>
+          <Button title="TOAST" onPress={()=>{
+                    this.refs.toast.show(<Text style={styles.toastText}>hello world!</Text>,DURATION.LENGTH_LONG);
+                }}/>
         </View>
         <View style={styles.toast}>
-            <TouchableHighlight
-                style={{padding: 10}}
-                onPress={()=>{
-                    this.refs.toast.show('hello world!',DURATION.LENGTH_LONG);
-                }}>
-                <Text>Press me</Text>
-            </TouchableHighlight>
             <Toast
                 ref="toast"
                 style={styles.notification}
@@ -291,13 +287,14 @@ const styles = StyleSheet.create({
   },
   toast: {
     zIndex: 99,
-    position: "absolute",
-    top: 0,
-    right: 0,
-    marginTop: 80
+    marginTop: 20
   },
   notification: {
+    width: "80%",
     padding: 50,
-    backgroundColor: "rgb(77, 182, 172)"
+    backgroundColor: "rgba(77, 182, 172, 0.8)"
+  },
+  toastText: {
+    textAlign: 'center'
   }
 });
