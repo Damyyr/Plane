@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, View, Dimensions, ScrollView, Button } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, ScrollView,TouchableHighlight, Button } from 'react-native';
+import Toast, {DURATION} from 'react-native-easy-toast'
 import { AppLoading, Asset, Font, Icon } from 'expo';
 import { MapView } from "expo";
 import imgCar from './assets/images/car.png';
@@ -95,37 +96,33 @@ export default class App extends React.Component {
       t.push(m)
       this.setState({ markers: t})
       j++
-
       
-
         this.createCirclesAround(i, 0.0001/1.5, -0.0001, "N");
         this.createCirclesAround(i, -0.0001/1.5, +0.0001, "S");
         this.createCirclesAround(i, 0.0001, 0.0001, "E");
         this.createCirclesAround(i, -0.0001, -0.0001, "W");
-        // this.createCirclesAround(i, 0, -0.0001, "N");
-        // this.createCirclesAround(i, 0, +0.0001, "S");
-        // this.createCirclesAround(i, 0.0001, 0, "E");
-        // this.createCirclesAround(i, -0.0001, 0, "W");
     }
   }
 
   createLinesAround = (p, points, dir) => {
-    let m = {
-      type:"polyline",
-      key: j,
-      dir: dir,
-      user: false,
-      id:p.id,
-      coordinate: [{latitude: points[0].coordinate.latitude,
-      longitude: points[0].coordinate.longitude},
-      {latitude: points[1].coordinate.latitude,
-      longitude: points[1].coordinate.longitude}],
-      color: green
+    if (points[1] !== undefined) {
+      let m = {
+        type:"polyline",
+        key: j,
+        dir: dir,
+        user: false,
+        id:p.id,
+        coordinate: [{latitude: points[0].coordinate.latitude,
+        longitude: points[0].coordinate.longitude},
+        {latitude: points[1].coordinate.latitude,
+        longitude: points[1].coordinate.longitude}],
+        color: green
+      }
+      let t = this.state.markers;
+      t.push(m)
+      this.setState({ markers: t})
+      j++
     }
-    let t = this.state.markers;
-    t.push(m)
-    this.setState({ markers: t})
-    j++
   }
 
   createCirclesAround = (i, lat, long, dir) => {
@@ -221,6 +218,25 @@ export default class App extends React.Component {
         <View style={styles.button}>
           <Button title="ALLO" onPress={this.onPressButton}/>
         </View>
+        <View style={styles.toast}>
+            <TouchableHighlight
+                style={{padding: 10}}
+                onPress={()=>{
+                    this.refs.toast.show('hello world!',DURATION.LENGTH_LONG);
+                }}>
+                <Text>Press me</Text>
+            </TouchableHighlight>
+            <Toast
+                ref="toast"
+                style={{backgroundColor:'red', zIndex: 98}}
+                position='top'
+                positionValue={200}
+                fadeInDuration={750}
+                fadeOutDuration={1000}
+                opacity={0.8}
+                textStyle={{color:'white'}}
+            />
+        </View>
 
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
           <View style={styles.getStartedContainer}>
@@ -289,5 +305,14 @@ const styles = StyleSheet.create({
     top: 0,
     right: 0,
     marginTop: 40
+  },
+  toast: {
+    zIndex: 99,
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    top: 0,
+    right: 0,
+    marginTop: 80
   }
 });
