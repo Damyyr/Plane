@@ -4,6 +4,7 @@ import { AppLoading, Asset, Font, Icon } from 'expo';
 import { MapView } from "expo";
 import imgCar from './assets/images/car.png';
 import imgLight from './assets/images/light.png';
+import calcDist from './components/utils'
 
 import intersect from './assets/data/intersect.json'
 
@@ -12,13 +13,22 @@ import openSocket from 'socket.io-client';
 const width = Dimensions.get('window').width
 const height = Dimensions.get('window').height
 
-const green = "rgba(0, 153, 51, 0.5)"
-const red = "rgba(255, 51, 0, 0.5)"
+const green = "rgba(0, 153, 51, 0.8)"
+const red = "rgba(255, 51, 0, 0.8)"
+const redHex = "#ff0000"
+const greenHex = "#009933"
+
+console.ignoredYellowBox = ['Remote debugger'];
+import { YellowBox } from 'react-native';
+YellowBox.ignoreWarnings([
+    'Unrecognized WebSocket connection option(s) `agent`, `perMessageDeflate`, `pfx`, `key`, `passphrase`, `cert`, `ca`, `ciphers`, `rejectUnauthorized`. Did you mean to put these under `headers`?'
+]);
 
 export default class App extends React.Component {
   state = {
     isLoadingComplete: false,
     markers: [{
+      type:"marker",
       key:0,
       user: true,
       radius:15,
@@ -31,9 +41,11 @@ export default class App extends React.Component {
     }]
   };
 
-  componentDidMount = () => {
+  componentWillMount = () => {
+    // var io = openSocket('https://planehack.herokuapp.com/');
+    
     this.renderMarkers();
-    setInterval(this.changeColor, 100)
+    // setInterval(this.changeColor, 100)
   }
 
   renderMarkers = () => {
@@ -44,6 +56,7 @@ export default class App extends React.Component {
       }
       
       let m = {
+        type:"circle",
         key: j,
         user: false,
         title: "Intersection",
@@ -52,33 +65,174 @@ export default class App extends React.Component {
         coordinate:{latitude: i.lat,
         longitude: i.long},
         image:imgLight,
-        radius: 15,
+        radius: 7,
         color: green
       }
 
-      j++;
+      if (calcDist(m, this.state.markers.filter(elm => elm.user === true)[0]) > 1000) {
+        continue;
+      }
+
       let t = this.state.markers;
       t.push(m)
       this.setState({ markers: t})
-      return
+      j++
 
+      this.createCirclesAround(i);
+      this.createCirclesAround(i);
+      this.createCirclesAround(i);
+      this.createCirclesAround(i);
     }
   }
 
-  calcCrow = (coords1, coords2) =>
-  {
-    // var R = 6.371; // km
-    var R = 6371000;
-    var dLat = toRad(coords2.lat-coords1.lat);
-    var dLon = toRad(coords2.lng-coords1.lng);
-    var lat1 = toRad(coords1.lat);
-    var lat2 = toRad(coords2.lat);
-  
-    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2); 
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-    var d = R * c;
-    return d;
+  createLinesAround = () => {
+    
+  }
+
+  createCirclesAround = (i) => {
+    let m = {
+      type:"circle",
+      key: j,
+      user: false,
+      title: "Intersection",
+      description: "Intersection",
+      id:i.Int_no,
+      coordinate:{latitude: i.lat+0.0001,
+      longitude: i.long},
+      image:imgLight,
+      radius: 4,
+      color: green
+    }
+    let t = this.state.markers;
+    t.push(m)
+    this.setState({ markers: t})
+    j++
+
+    m = {
+      type:"polyline",
+      key: j,
+      user: false,
+      id:i.Int_no,
+      coordinate:[{latitude: i.lat+0.0001,
+      longitude: i.long},
+      {latitude: i.lat+0.0001*2,
+      longitude: i.long}],
+      image:imgLight,
+      radius: 4,
+      color: greenHex
+    }
+    t = this.state.markers;
+    t.push(m)
+    this.setState({ markers: t})
+    j++
+
+    m = {
+      type:"circle",
+      key: j,
+      user: false,
+      title: "Intersection",
+      description: "Intersection",
+      id:i.Int_no,
+      coordinate:{latitude: i.lat-0.0001,
+      longitude: i.long},
+      image:imgLight,
+      radius: 4,
+      color: green
+    }
+    t = this.state.markers;
+    t.push(m)
+    this.setState({ markers: t})
+    j++
+
+    m = {
+      type:"polyline",
+      key: j,
+      user: false,
+      id:i.Int_no,
+      coordinate:[{latitude: i.lat-0.0001,
+      longitude: i.long},
+      {latitude: i.lat-0.0001*2,
+      longitude: i.long}],
+      image:imgLight,
+      radius: 4,
+      color: greenHex
+    }
+    t = this.state.markers;
+    t.push(m)
+    this.setState({ markers: t})
+    j++
+
+    m = {
+      type:"circle",
+      key: j,
+      user: false,
+      title: "Intersection",
+      description: "Intersection",
+      id:i.Int_no,
+      coordinate:{latitude: i.lat,
+      longitude: i.long+0.0001*1.5},
+      image:imgLight,
+      radius: 4,
+      color: green
+    }
+    t = this.state.markers;
+    t.push(m)
+    this.setState({ markers: t})
+    j++
+
+    m = {
+      type:"polyline",
+      key: j,
+      user: false,
+      id:i.Int_no,
+      coordinate:[{latitude: i.lat,
+      longitude: i.long+0.0001*1.5},
+      {latitude: i.lat,
+      longitude: i.long+0.0001*1.5*2}],
+      image:imgLight,
+      radius: 4,
+      color: greenHex
+    }
+    t = this.state.markers;
+    t.push(m)
+    this.setState({ markers: t})
+    j++
+
+    m = {
+      type:"circle",
+      key: j,
+      user: false,
+      title: "Intersection",
+      description: "Intersection",
+      id:i.Int_no,
+      coordinate:{latitude: i.lat,
+      longitude: i.long-0.0001*1.5},
+      image:imgLight,
+      radius: 4,
+      color: green
+    }
+    t = this.state.markers;
+    t.push(m)
+    this.setState({ markers: t})
+    j++
+
+    m = {
+      type:"polyline",
+      key: j,
+      user: false,
+      id:i.Int_no,
+      coordinate:[{latitude: i.lat,
+      longitude: i.long-0.0001*1.5},
+      {latitude: i.lat,
+      longitude: i.long-0.0001*1.5*2}],
+      image:imgLight,
+      radius: 4,
+      color: greenHex
+    }
+    t = this.state.markers;
+    t.push(m)
+    this.setState({ markers: t})
+    j++
   }
 
   changeColor = () => {
@@ -93,6 +247,35 @@ export default class App extends React.Component {
       }
     }
     this.setState({ markers: o})
+  }
+
+  renderElementsMap = (marker) => {
+    if (marker.type === "circle") {
+      return <MapView.Circle 
+        key={marker.key}
+        center={marker.coordinate}
+        radius = { marker.radius }
+        strokeWidth = { 1 }
+        strokeColor = { '#1a66ff' }
+        fillColor = { marker.color }
+      />
+    } else if (marker.type === "marker") {
+      return <MapView.Marker 
+        key={marker.key}
+        coordinate={marker.coordinate}
+        image = {marker.image}
+      />
+    } else {
+      return <MapView.Polyline 
+        key={marker.key}
+        coordinates={marker.coordinate}
+        strokeColor={marker.color}
+        strokeColors={[
+          marker.color
+        ]}
+		    strokeWidth={6}
+      />
+    }
   }
 
   render() {
@@ -122,16 +305,10 @@ export default class App extends React.Component {
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421
               }}
+              // showsTraffic={true}
             >
             {this.state.markers.map(marker => (
-              <MapView.Circle 
-                key={marker.key}
-                center={marker.coordinate}
-                radius = { marker.radius }
-                strokeWidth = { 1 }
-                strokeColor = { '#1a66ff' }
-                fillColor = { marker.color }
-              />
+              this.renderElementsMap(marker)
             ))}
             </MapView>
           </View>
