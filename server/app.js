@@ -98,6 +98,33 @@ io.on("connection", client => {
 
   console.log("Sup bitch");
   
+  client.on('lightStates', data => {
+    let response = []
+    IntersectModel.find({'Int_no': {$in:data}}, function (err, res) {
+      if (err) return handleError(err);
+
+      for (const intersection of res) {
+        let lastChange = res.lastChange;
+        let secondsSinceLastChange = Math.round((Date.new - lastChange) / 1000);
+        let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
+        let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
+
+        let totalCycle = dirA.directionTimer + dirB.directionTimer;
+        let direction = secondsSinceLastChange % totalCycle;
+        let greenFor = direction <= dirA.directionTimer ? 'A' : 'B';
+
+        response.push({
+          Int_no: res.Int_no,
+          greenFor: greenFor
+        });
+      }
+
+      console.log(response);
+    });
+
+    client.emit('lightStates', { data: response })
+  });
+
   client.on("feedback", data => { 
     IntersectModel.find({ 'Int_no': 661 }, 'lat long', function (err, mintersect) {
       if (err) return handleError(err);
