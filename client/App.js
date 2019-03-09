@@ -38,7 +38,8 @@ export default class App extends React.Component {
       image:imgCar,
       color: 'rgba(230,238,255,0.5)'
     }],
-    socket: openSocket('https://planehack.herokuapp.com/')
+    // socket: openSocket('https://planehack.herokuapp.com/')
+    socket: openSocket('http://plane.mdamour.info')
   };
 
   componentWillMount = () => {
