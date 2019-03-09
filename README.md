@@ -8,8 +8,7 @@ place publique concernant la mobilité à Québec.
 
 Notre idée nous est aussi venu du fait que nous nous retrouvions quelquefois 
 en tant que citoyen à attendre tard la nuit que le feu devienne vert pour nous malgré le
-fait que nous soyons seul à l'intersection, ainsi que du fait qu'il y a peu(ou pas) de 
-système de feux intelligents présentement utilisés dans la province de Québec.
+fait que nous soyons seul à l'intersection.
 
 Nous avons aussi pensé aux bénéfices environnementaux possibles de cette solution venant
 du fait que les voitures se retrouveraient moins longtemps aux intersections. 
@@ -28,12 +27,12 @@ D'où vous est venue cette idée ? Quel défi en lien avec le thème avez-vous r
 <!--
 Une courte description de votre solution.
 -->
-Notre application donne aux citoyens l'accès au traffic sur le territoire de la région de 
-Québec et de Montréal ainsi que l'état des différents feux aux intersections. Celui-ci peut 
-signaler que la présence de traffic à son intersection ainsi que son attente à un arrêt. En 
+Notre application donne aux citoyens l'accès au traffic aux intersections sur le territoire de la région de 
+Québec et de Montréal ainsi que l'état des différents feux. Celui-ci peut 
+signaler la présence de traffic à son intersection ainsi que sa position en temps réel. En 
 prenant en compte les données fournies par le citoyen ainsi que les données disponible sur 
-le traffic actuel, les feux modifient leur temps d'attente dans chacune des directions. De 
-cette manière, on veut donner un poids au citoyen dans l'équation.
+le traffic actuel, les feux ajustent leur temps d'attente dans chacune des directions. De 
+cette manière, on donne un poids au citoyen dans l'équation.
 
 ## Les jeux de données utilisés.
 
@@ -73,24 +72,30 @@ base de données.
 Une autre difficulté que nous avons rencontrée vient du manque de données réelles qui
 vient du fait que seul Québec et Montréal ont des jeux de données à cet effet et
 du manque de tests réels possibles de notre application, puisque seul des simulations
-pourrait être utilisés pour modéliser le temps qu'une telle solution pourrait sauver.
+pourraient être utilisés pour modéliser le temps qu'une telle solution pourrait sauver.
 
 ## Les bons coups
 
-Durant notre exploration des différentes problématiques associés à l'implication 
+* Écologie
+* Scalable (universel)
+* RealTime
+* Feedback user
+* Faisabilité élevée (Économique et la technologie est déjà disponible)
+
+## Ce qu'on a appris
+
+Durant notre exploration des différentes problématiques associées à l'implication 
 citoyenne, nous avons découvert les bénéfices environnementaux de notre application.
 En effet, si les automobilistes canadiens évitaient la marche au ralenti pendant à 
 peine trois minutes par jour, les émissions de CO2 pourraient être réduites de 1,4 millions 
 de tonnes par année. Cela équivaut à économiser 630 millions de litres de carburant ou 
 encore à retirer 320 000 voitures de la circulation annuellement. De la même manière, il 
 suffit de 14 minutes de marche au ralenti pour brûler 0,4 litre d’essence et émettre 1 kg 
-de CO2 dans l’atmosphère.
+de CO2 dans l’atmosphère. [source](http://www.crecn.org/main.php?sid=m&mid=24&lng=2)
 
-## Ce qu'on a appris
-
-Grâce au conférences, nous avons aussi appris que la ville de Québec disposait d'un système 
+Grâce aux conférences, nous avons aussi appris que la ville de Québec disposait d'un système 
 de gestion artérielle et d'un système permettant aux chauffeurs d'autobus d'appeler une 
-lumière blanche leur donnant la priorité dans les intersections.
+lumière leur donnant la priorité dans les intersections.
 
 ## La suite pour votre application
 
@@ -98,6 +103,10 @@ Comme mentionné plus haut, il serait envisageable d'ajouter un système de reco
 pour nous permettre de faciliter l'interaction avec les citoyens. Nous avons aussi pensé à 
 l'intégration de notre application dans un système d'exploitation pour voitures tels
 Apple CarPlay.
+
+* Machine learning
+* Ajouter autres commandes utilisateur
+* Intégration à l'application Copilote
 
 ## Built With
 
