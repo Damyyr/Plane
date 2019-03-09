@@ -3,13 +3,23 @@ import { StyleSheet, View, Dimensions, ScrollView } from 'react-native';
 import { AppLoading, Asset, Font, Icon } from 'expo';
 import { MapView } from "expo";
 
+import openSocket from 'socket.io-client';
+
 const width = Dimensions.get('window').width
 const height = Dimensions.get('window').height
 
 export default class App extends React.Component {
   state = {
     isLoadingComplete: false,
+    socket: openSocket('http://localhost:4000')
   };
+
+  componentDidMount() {
+    this.state.socket.on('event', resp => {
+      console.log(resp);
+      this.setState({ [resp.dest]: resp.data });
+    });
+  }
 
   render() {
     if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
