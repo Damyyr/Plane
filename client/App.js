@@ -39,8 +39,8 @@ export default class App extends React.Component {
       image:imgCar,
       color: 'rgba(230,238,255,0.5)'
     }],
-    // socket: openSocket('https://planehack.herokuapp.com/')
-    socket: openSocket('http://plane.mdamour.info')
+    socket: openSocket('https://planehack.herokuapp.com/')
+    // socket: openSocket('http://plane.mdamour.info')
   };
 
   componentWillMount = () => {
@@ -49,7 +49,7 @@ export default class App extends React.Component {
     })
 
     this.state.socket.on("lightStates", resp => {
-
+      console.log(resp.data);
     })
 
     // setInterval(this.serverCallLightState, 4000)
@@ -64,7 +64,7 @@ export default class App extends React.Component {
         continue;
       }
       
-      markersToGet.push(marker)
+      markersToGet.push(marker.id)
     }
     this.state.socket.emit("lightStates", { data: markersToGet })
   }
