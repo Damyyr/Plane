@@ -24,6 +24,12 @@
     ],
     "ios": {
       "supportsTablet": true
+    },
+    "android": {
+      "package": "com.hackqc.traffeed",
+      "config": {
+        "googleMaps": { "apiKey": "AIzaSyBf7z_rH4yNNOBdJEwYwJTPbtJe1b4Q6Nw" }   
+     }
     }
   }
 }
