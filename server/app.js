@@ -44,11 +44,11 @@ function handleError(error){
 
 io.on("connection", client => {
 
-  console.log("Sup bitch");
+  console.log(`Sup bitch ${client.id}`);
   
   client.on('lightStates', data => {
     let response = []
-    IntersectModel.find({'Int_no': data.data[0]}, function (err, res) {
+    IntersectModel.find({'Int_no': data.data}, function (err, res) {
       if (err) return handleError(err);
 
       for (const intersection of res) {
@@ -67,9 +67,9 @@ io.on("connection", client => {
         });
       }
 
-      console.log(response);
     });
-
+    
+    console.log(response);
     client.emit('lightStates', { data: response })
   });
 
@@ -91,7 +91,7 @@ io.on("connection", client => {
   })
 
   client.on("disconnect", () => { 
-    console.log("bye")
+    console.log(`bye ${client.id}`)
   })
 })
 
