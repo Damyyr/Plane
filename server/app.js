@@ -19,7 +19,8 @@ let branchesSchema = mongoose.Schema({
 })
 
 let directionSchema = mongoose.Schema({
-  directionTimer: Number,
+  defaultTimer: Number,
+  actualTimer: Number,
   direction: String
 })
 
@@ -57,9 +58,9 @@ io.on("connection", client => {
         let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
         let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
 
-        let totalCycle = dirA.directionTimer + dirB.directionTimer;
+        let totalCycle = dirA.defaultTimer + dirB.defaultTimer;
         let direction = secondsSinceLastChange % totalCycle;
-        let greenFor = direction <= dirA.directionTimer ? 'A' : 'B';
+        let greenFor = direction <= dirA.defaultTimer ? 'A' : 'B';
 
         response.push({
           Int_no: intersection.Int_no,
