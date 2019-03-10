@@ -19,6 +19,9 @@ const green = "rgba(0, 153, 51, 0.8)";
 const red = "rgba(255, 51, 0, 0.8)";
 const orange = "rgba(255, 204, 0, 0.8)";
 
+const startLat = 45.534964
+const startLong = -73.559118
+
 console.ignoredYellowBox = ['Remote debugger'];
 import { YellowBox } from 'react-native';
 YellowBox.ignoreWarnings([
@@ -34,15 +37,15 @@ export default class App extends React.Component {
       user: true,
       radius:15,
       // coordinate: {latitude: 46.816592, longitude: -71.200432},
-      coordinate: {latitude: 45.534964, longitude: -73.559118},
+      coordinate: {latitude: startLat, longitude: startLong},
       title:"title",
       description:"description",
       image:imgCar,
       color: 'rgba(230,238,255,0.5)'
     }],
     tempMarkers: [],
-    // socket: openSocket('https://planehack.herokuapp.com/')
-    socket: openSocket('http://plane.mdamour.info')
+    socket: openSocket('https://planehack.herokuapp.com/')
+    // socket: openSocket('http://plane.mdamour.info')
   };
 
   componentWillMount = () => {
@@ -253,7 +256,7 @@ export default class App extends React.Component {
       return (
         <View style={styles.container}>
         <View style={styles.button}>
-          <Button title="ALLO" onPress={this.serverCallLightState}/>
+          <Button title="ALLO" onPress={this.onPressButton}/>
           <Button title="TOAST" onPress={()=>{
                     this.refs.toast.show(<Text style={styles.toastText}>hello world!</Text>,DURATION.LENGTH_LONG);
                 }}/>
@@ -281,8 +284,8 @@ export default class App extends React.Component {
               initialRegion={{
                 // latitude: 46.816592,
                 // longitude: -71.200432,
-                latitude: 45.534964, 
-                longitude: -73.559118,
+                latitude: startLat, 
+                longitude: startLong,
                 latitudeDelta: 0.0922/25,
                 longitudeDelta: 0.0421/25
               }}
