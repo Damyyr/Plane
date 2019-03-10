@@ -11,6 +11,10 @@ const modifierBounds = [-3, 3]
 idsToUpdate = []
 ligthDataSet = []
 
+const timeToRefresh = 1000;
+
+setTimeout(imNotJammed, timeToRefresh);
+
 mongoose.connect(`mongodb://${process.env.dbuser}:${process.env.dbpassword}@ds163822.mlab.com:63822/plane`, option).then(
   () => {
     console.log('Successfully connected');
@@ -50,7 +54,7 @@ function handleError(error) {
 }
 
 io.on("connection", client => {
-  setTimeout(calculateTraffic, 3000);
+  setTimeout(calculateTraffic, timeToRefresh);
   console.log(`Sup bitch ${client.id}`);
 
   client.on('lightStates', data => {
@@ -105,6 +109,11 @@ io.on("connection", client => {
 function teeest() {
   console.log('idsToUpdate');
   console.log(idsToUpdate);
+}
+
+function imNotJammed(){
+  console.log('yo btw chu toujours up gro');
+  setTimeout(imNotJammed, timeToRefresh);
 }
 
 function calculateTraffic() {
@@ -180,6 +189,7 @@ function calculateTraffic() {
     }
   });
   console.log('Update Done');
+  setTimeout(calculateTraffic, timeToRefresh);
 }
 
 function algoVraimentComplique(flowData) {
