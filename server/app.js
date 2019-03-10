@@ -96,7 +96,7 @@ io.on("connection", client => {
     IntersectModel.find({ 'Int_no': data.data.id }, function (err, res) {
       if (err) return handleError(err);
       if(!res[0]) return;
-      
+
       console.log(res[0]);
       dir = res[0].branches.filter(elem => elem.direction == data.data.dir)[0];
       dir.trafficInd += 50;
@@ -134,7 +134,7 @@ function imNotJammed() {
 function calculateTraffic(client) {
   console.log('Traffic is updating...');
   // console.log(client);
-  console.log(idsToUpdate);
+  // console.log(idsToUpdate);
   IntersectModel.find({ 'Int_no': idsToUpdate }, (err, res) => {
     if (err) return handleError(err);
 
