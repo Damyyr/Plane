@@ -7,19 +7,30 @@ const axios = require('axios')
 const hostname = "localhost"
 const PORT = process.env.PORT || 8888
 
+const modifierBounds = [-3, 3]
+idsToUpdate = []
+ligthDataSet = []
+
+const timeToRefresh = 4000;
+
+// setTimeout(imNotJammed, timeToRefresh);
+
 mongoose.connect(`mongodb://${process.env.dbuser}:${process.env.dbpassword}@ds163822.mlab.com:63822/plane`, option).then(
-  () => { console.log('Successfully connected'); },
+  () => {
+    console.log('Successfully connected');
+  },
   err => { throw err }
 );
 
 let branchesSchema = mongoose.Schema({
   currentTimer: Number,
   direction: String,
-  trafficInd: Number
+  trafficInd: Number // POURCENTAGE: N - 100 == congestion vers le nord
 })
 
 let directionSchema = mongoose.Schema({
-  directionTimer: Number,
+  defaultTimer: Number,
+  actualTimer: Number,
   direction: String
 })
 
@@ -43,33 +54,40 @@ function handleError(error) {
 }
 
 io.on("connection", client => {
-
+  setTimeout(calculateTraffic, timeToRefresh, client);
   console.log(`Sup bitch ${client.id}`);
 
   client.on('lightStates', data => {
-    IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
-      if (err) return handleError(err);
-
-      let response = []
-      for (const intersection of res) {
-        let lastChange = intersection.lastChange;
-        let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
-        let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
-        let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
-
-        let totalCycle = dirA.directionTimer + dirB.directionTimer;
-        let direction = secondsSinceLastChange % totalCycle;
-        let greenFor = direction <= dirA.directionTimer ? 'A' : 'B';
-
-        response.push({
-          Int_no: intersection.Int_no,
-          greenFor: greenFor
-        });
-      }
-
-      client.emit('lightStates', { data: response })
-    });
+    idsToUpdate = data.data
   });
+  //   IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
+  //   if (err) return handleError(err);
+
+  //   idsToUpdate = [678,661] //data.data
+  //   // client.emit('lightStates', { data: res })
+
+  //   let response = []
+  //   for (const intersection of res) {
+  //     let lastChange = intersection.lastChange;
+  //     let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
+  //     let dirA = intersection.directions.filter(elem => elem.direction == 'A')[0];
+  //     let dirB = intersection.directions.filter(elem => elem.direction == 'B')[0];
+
+  //     let totalCycle = dirA.defaultTimer + dirB.defaultTimer;
+  //     let direction = secondsSinceLastChange % totalCycle;
+  //     let greenFor = direction < dirA.defaultTimer ? 'A' : 'B';
+
+  //     response.push({
+  //       Int_no: intersection.Int_no,
+  //       greenFor: greenFor
+  //     });
+  //   }
+
+  //   //teeest();
+  //   client.emit('lightStates', { data: response })
+  //   // client.emit('lightStates', { data: ligthDataSet })
+  //   });
+  // });
 
   client.on("feedback", data => {
     IntersectModel.find({ 'Int_no': 661 }, 'lat long', function (err, mintersect) {
@@ -93,11 +111,73 @@ io.on("connection", client => {
   })
 })
 
+function teeest() {
+  console.log('idsToUpdate');
+  console.log(idsToUpdate);
+}
+
+function imNotJammed() {
+  console.log('yo btw chu toujours up gro');
+  setTimeout(imNotJammed, timeToRefresh);
+}
+
+function calculateTraffic(client) {
+  console.log('Traffic is updating...');
+  // console.log(client);
+  IntersectModel.find({ 'Int_no': idsToUpdate }, (err, res) => {
+  if (err) return handleError(err);
+
+  ligthDataSet = []
+  for (const intersection of res) {
+    let branches = intersection.branches;
+
+    let pairA = branches.filter(elem => elem.direction == 'N' || elem.direction == 'S');
+    let pairB = branches.filter(elem => elem.direction == 'E' || elem.direction == 'W');
+
+    let sumA = pairA[0].trafficInd + pairA[1].trafficInd
+    let sumB = pairB[0].trafficInd + pairB[1].trafficInd
+
+    let modA = scale(sumA, 0, 200, modifierBounds[0], modifierBounds[1])
+    let modB = scale(sumB, 0, 200, modifierBounds[0], modifierBounds[1])
+
+    // add this scaled ratio to each direction actualTimer
+    let lastChange = intersection.lastChange;
+    let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
+    let dirA = intersection.directions.filter(elem => elem.direction == 'A')[0];
+    let dirB = intersection.directions.filter(elem => elem.direction == 'B')[0];
+    
+    dirA.actualTimer = 10;
+    dirB.actualTimer = 10;
+
+    let totalCycle = dirA.actualTimer + dirB.actualTimer;
+    let direction = secondsSinceLastChange % totalCycle;
+    let greenFor = direction < dirA.actualTimer ? 'A' : 'B';
+
+    ligthDataSet.push({
+      Int_no: intersection.Int_no,
+      greenFor: greenFor,
+      TrafficN: pairA.filter(elem => elem.direction == 'N')[0].trafficInd,
+      TrafficS: pairA.filter(elem => elem.direction == 'S')[0].trafficInd,
+      TrafficE: pairB.filter(elem => elem.direction == 'E')[0].trafficInd,
+      TrafficW: pairB.filter(elem => elem.direction == 'W')[0].trafficInd
+    });
+  }
+  
+  });
+  console.log('Update Done');
+  client.emit('lightStates', { data: ligthDataSet });
+  setTimeout(calculateTraffic, timeToRefresh, client);
+}
+
 function algoVraimentComplique(flowData) {
   let a = flowData.currentSpeed
   let b = flowData.freeFlowSpeed
   let ab = a / b;
   return `${a} || ${b} || ${ab}`;
+}
+
+const scale = (num, in_min, in_max, out_min, out_max) => {
+  return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 server.listen(PORT, hostname, () => {
