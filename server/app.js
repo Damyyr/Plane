@@ -59,6 +59,7 @@ last = true;
 function setAllTraffic(isFull){
   let percent = !last ? 70 : 0;
   last = !last
+  console.log(last);
   for (let intersection of ligthDataSet) {
     IntersectModel.find({ 'Int_no': intersection.Int_no }, (err, res) => {
       let tomtomObject = tomtomCall(intersection.lat, intersection.long);
