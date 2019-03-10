@@ -237,7 +237,12 @@ export default class App extends React.Component {
       return elm.user;
     });
 
-    let newPositionCar = demoRoute.getPosition(pointInRoute);
+    const lights = this.state.markers.filter(markerLight => markerLight.type === "circle" && markerLight.title !== "Intersection");
+    let newPositionCar = demoRoute.getPosition(pointInRoute, lights, (blocked) => {
+      if (!blocked) {
+        pointInRoute += speedOfRoute;
+      }
+    });
 
     let newCar = {
       type:"marker",
@@ -251,8 +256,6 @@ export default class App extends React.Component {
       image:imgCar,
       color: 'rgba(230,238,255,0.5)'
     };
-
-    pointInRoute += speedOfRoute;
 
     marks.splice(indexToDelete, 1)
     marks.push(newCar);
