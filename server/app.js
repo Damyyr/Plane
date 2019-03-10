@@ -62,7 +62,7 @@ function fetchTomTom(){
 
     let branches = intersection.branches;
 
-console.log(branches);
+console.log(intersection);
 
     branches.filter(elem => elem.direction == 'N')[0].trafficInd = transfromTomTom(tomtomObject.TrafficN)
     branches.filter(elem => elem.direction == 'S')[0].trafficInd = transfromTomTom(tomtomObject.TrafficS)
