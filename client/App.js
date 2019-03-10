@@ -8,8 +8,9 @@ import imgCar from './assets/images/car.png';
 import imgLight from './assets/images/light.png';
 import calcDist from './components/utils'
 import Route from './route'
-
-import intersect from './assets/data/intersect.json'
+import imgPedestrian from './assets/images/pedestrian-walking.png';
+import imgBlind from './assets/images/hide.png';
+import intersect from './assets/data/intersect.json';
 
 import openSocket from 'socket.io-client';
 
@@ -167,19 +168,39 @@ export default class App extends React.Component {
         continue;
       }
       
+      let theImage = undefined;
+      
+      if (i.Malvoyant) {
+        theImage = imgBlind;
+      } else if (i.Pieton) {
+        theImage = imgPedestrian;
+      }
+
       let m = {
-        type:"circle",
+        type:"marker",
         key: j,
         user: false,
-        title: "Intersection",
-        description: "Intersection",
+        title: "Pedestrian",
+        description: "Pedestrian",
         id:i.IntNo,
         coordinate:{latitude: i.Lat,
         longitude: i.Long},
-        image:imgLight,
+        image: theImage,
         radius: 7,
-        color: (i.Pieton) ? orange : green
       }
+
+      // markers: [{
+      //   type:"marker",
+      //   key:0,
+      //   user: true,
+      //   radius:15,
+      //   // coordinate: {latitude: 46.816592, longitude: -71.200432},
+      //   coordinate: {latitude: startLat, longitude: startLong},
+      //   title:"title",
+      //   description:"description",
+      //   image:imgCar,
+      //   color: 'rgba(230,238,255,0.5)'
+      // }]
 
       if (calcDist(m, this.state.markers.filter(elm => elm.user === true)[0]) > 1000) {
         continue;
@@ -331,11 +352,13 @@ export default class App extends React.Component {
         fillColor = { marker.color }
       />
     } else if (marker.type === "marker") {
-      return <MapView.Marker 
-        key={marker.key}
-        coordinate={marker.coordinate}
-        image = {marker.image}
-      />
+      if (marker.image !== undefined) {
+        return <MapView.Marker 
+          key={marker.key}
+          coordinate={marker.coordinate}
+          image = {marker.image}
+        />
+      }
     } else {
       return <MapView.Polyline 
         key={marker.key}
