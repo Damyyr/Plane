@@ -123,7 +123,7 @@ function calculateTraffic(){
 
       // add this scaled ratio to each direction actualTimer
       ratio = ((sumA/sumB) * 100);
-      scaledRatio = scale(ratio, 0, 200, modifierBounds[0], modifierBounds[1]);
+      scaledRatio = Math.round(scale(ratio, 0, 200, modifierBounds[0], modifierBounds[1]));
 
       let lastChange = intersection.lastChange;
       let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
