@@ -7,8 +7,10 @@ import { MapView } from "expo";
 import imgCar from './assets/images/car.png';
 import imgLight from './assets/images/light.png';
 import calcDist from './components/utils'
-
-import intersect from './assets/data/intersect.json'
+import Route from './route'
+import imgPedestrian from './assets/images/pedestrian-walking.png';
+import imgBlind from './assets/images/hide.png';
+import intersect from './assets/data/intersect.json';
 
 import openSocket from 'socket.io-client';
 
@@ -19,11 +21,38 @@ const green = "rgba(0, 153, 51, 0.8)";
 const red = "rgba(255, 51, 0, 0.8)";
 const orange = "rgba(255, 204, 0, 0.8)";
 
-console.ignoredYellowBox = ['Remote debugger'];
-import { YellowBox } from 'react-native';
-YellowBox.ignoreWarnings([
-    'Unrecognized WebSocket connection option(s) `agent`, `perMessageDeflate`, `pfx`, `key`, `passphrase`, `cert`, `ca`, `ciphers`, `rejectUnauthorized`. Did you mean to put these under `headers`?'
-]);
+const startLat = 45.533475
+const startLong = -73.570720
+
+const demoRoutePoints = [
+  {
+    latitude: 45.533475,
+    longitude: -73.570720,
+    IntNo: 678,
+  },
+  {
+    latitude: 45.534085,
+    longitude: -73.570177,
+    IntNo: 705,
+  },
+  {
+    latitude: 45.532798,
+    longitude: -73.567383,
+    IntNo: 700,
+  },
+  {
+    latitude: 45.532179,
+    longitude: -73.567960,
+    IntNo: 681,
+  },
+];
+
+let pointInRoute = 0;
+const speedOfRoute = 0.01*5;
+const carRefreshRate = 1000 / 5; // ms
+let demoRoute = new Route(demoRoutePoints);
+
+console.disableYellowBox = true;
 
 export default class App extends React.Component {
   state = {
@@ -34,7 +63,7 @@ export default class App extends React.Component {
       user: true,
       radius:15,
       // coordinate: {latitude: 46.816592, longitude: -71.200432},
-      coordinate: {latitude: 45.534964, longitude: -73.559118},
+      coordinate: {latitude: startLat, longitude: startLong},
       title:"title",
       description:"description",
       image:imgCar,
@@ -55,7 +84,7 @@ export default class App extends React.Component {
 
       // let markersToGet = this.getMarkersToGet()
       // console.log(markersToGet);
-      // console.log(resp.data);
+      console.log(resp.data);
 
       for (const light of resp.data) {
         markerLights.push(this.changeLightColor(light))
@@ -65,7 +94,15 @@ export default class App extends React.Component {
 
     this.createMarkers();
 
-    setInterval(this.serverCallLightState, 3000)
+    this.state.socket.on("connection", resp => {
+      this.serverCallLightState()
+    })
+
+    this.state.socket.on("clientSendLightStates", resp => {
+      this.serverCallLightState()
+    })
+
+    // setInterval(this.serverCallLightState, 3000)
   }
 
   changeLightColor = (light) => {
@@ -91,9 +128,28 @@ export default class App extends React.Component {
         //   markerLight.color = green;
         // }
       }
+      if (markerLight.id == light.Int_no && markerLight.type === "polyline") {
+        if (markerLight.dir === "N") {
+          markerLight.color = this.colorBranches(light.TrafficN)
+        } else if (markerLight.dir === "S") {
+          markerLight.color = this.colorBranches(light.TrafficS)
+        } else if (markerLight.dir === "E") {
+          markerLight.color = this.colorBranches(light.TrafficE)
+        } else {
+          markerLight.color = this.colorBranches(light.TrafficW)
+        }
+      }
     }
 
     return markerLights;
+  }
+
+  colorBranches = (TrafficD) => {
+    let rc = TrafficD * 2.5
+    let rg = 150 - (TrafficD * 1.5)
+    let rb = (50 - TrafficD) < 0 ? 0 : 50 - TrafficD
+    // return `rgba(1, 1, 1, 0.8)`
+    return `rgba(${rc}, ${rg}, ${rb}, 0.8)`
   }
 
   getMarkersToGet = () => {
@@ -120,19 +176,39 @@ export default class App extends React.Component {
         continue;
       }
       
+      let theImage = undefined;
+      
+      if (i.Malvoyant) {
+        theImage = imgBlind;
+      } else if (i.Pieton) {
+        theImage = imgPedestrian;
+      }
+
       let m = {
-        type:"circle",
+        type:"marker",
         key: j,
         user: false,
-        title: "Intersection",
-        description: "Intersection",
+        title: "Pedestrian",
+        description: "Pedestrian",
         id:i.IntNo,
         coordinate:{latitude: i.Lat,
         longitude: i.Long},
-        image:imgLight,
+        image: theImage,
         radius: 7,
-        color: (i.Pieton) ? orange : green
       }
+
+      // markers: [{
+      //   type:"marker",
+      //   key:0,
+      //   user: true,
+      //   radius:15,
+      //   // coordinate: {latitude: 46.816592, longitude: -71.200432},
+      //   coordinate: {latitude: startLat, longitude: startLong},
+      //   title:"title",
+      //   description:"description",
+      //   image:imgCar,
+      //   color: 'rgba(230,238,255,0.5)'
+      // }]
 
       if (calcDist(m, this.state.markers.filter(elm => elm.user === true)[0]) > 1000) {
         continue;
@@ -180,7 +256,6 @@ export default class App extends React.Component {
       longitude: i.Long+long},
       image:imgLight,
       radius: 4,
-      dir: dir,
       color: (dir === "N" || dir === "S") ? green : red
     }
     let t = this.state.markers;
@@ -205,6 +280,67 @@ export default class App extends React.Component {
     this.setState({ markers: o})
   }
 
+  moveCar = () => {
+    let marks = this.state.markers;
+    let petiteVoiture = marks.filter(elm => elm.user === true)[0];
+    
+    let indexToDelete = marks.findIndex((elm) => {
+      return elm.user;
+    });
+
+    let newPositionCar = demoRoute.getPosition(pointInRoute);
+    let prevPositionCalc = Math.floor(pointInRoute-speedOfRoute % 4);
+    let newPositionCalc = Math.floor(pointInRoute % 4);
+    let nextPositionCalc = Math.floor(pointInRoute+speedOfRoute % 4);
+
+    if (newPositionCalc != prevPositionCalc) {
+      let direction = "" 
+      if (newPositionCalc%2) {
+        direction = "W"
+      } else {
+        direction = "N"
+      }
+
+      if (this.state.markers.filter(elm => elm.id == demoRoutePoints[newPositionCalc].IntNo && 
+        elm.type === "circle" && elm.title !== "Intersection" && elm.dir === direction)[0].color === green ) {
+        if (nextPositionCalc == 4) {
+          pointInRoute = 0;
+        }
+        
+        this.refs.toast.show(<Text style={styles.toastText}>UN TOUR!</Text>,DURATION.LENGTH_LONG);
+        
+        this.moveTheCarMarker(indexToDelete, newPositionCar, marks)
+      }
+    } else {
+      this.moveTheCarMarker(indexToDelete, newPositionCar, marks)
+    }
+  };
+
+  moveTheCarMarker = (indexToDelete, newPositionCar, marks) => {
+    let newCar = {
+      type:"marker",
+      key:0,
+      user: true,
+      radius:15,
+      // coordinate: {latitude: 46.816592, longitude: -71.200432},
+      coordinate: newPositionCar,
+      title:"title",
+      description:"description",
+      image:imgCar,
+      color: 'rgba(230,238,255,0.5)'
+    };
+
+    pointInRoute += speedOfRoute;
+
+    marks.splice(indexToDelete, 1)
+    marks.push(newCar);
+    this.setState({ markers: marks });
+  }  
+
+  componentDidMount = () => {
+     setInterval(this.moveCar, carRefreshRate);
+  }
+
   renderElementsMap = (marker) => {
     if (marker.type === "circle") {
       return <MapView.Circle 
@@ -216,11 +352,13 @@ export default class App extends React.Component {
         fillColor = { marker.color }
       />
     } else if (marker.type === "marker") {
-      return <MapView.Marker 
-        key={marker.key}
-        coordinate={marker.coordinate}
-        image = {marker.image}
-      />
+      if (marker.image !== undefined) {
+        return <MapView.Marker 
+          key={marker.key}
+          coordinate={marker.coordinate}
+          image = {marker.image}
+        />
+      }
     } else {
       return <MapView.Polyline 
         key={marker.key}
@@ -252,12 +390,12 @@ export default class App extends React.Component {
     } else {
       return (
         <View style={styles.container}>
-        <View style={styles.button}>
-          <Button title="ALLO" onPress={this.serverCallLightState}/>
+        {/* <View style={styles.button}>
+          <Button title="ALLO" onPress={this.onPressButton}/>
           <Button title="TOAST" onPress={()=>{
                     this.refs.toast.show(<Text style={styles.toastText}>hello world!</Text>,DURATION.LENGTH_LONG);
                 }}/>
-        </View>
+        </View> */}
         <View style={styles.toast}>
             <Toast
                 ref="toast"
@@ -281,8 +419,8 @@ export default class App extends React.Component {
               initialRegion={{
                 // latitude: 46.816592,
                 // longitude: -71.200432,
-                latitude: 45.534964, 
-                longitude: -73.559118,
+                latitude: startLat,
+                longitude: startLong,
                 latitudeDelta: 0.0922/25,
                 longitudeDelta: 0.0421/25
               }}
