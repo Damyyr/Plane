@@ -54,28 +54,32 @@ function handleError(error) {
   console.log(error);
 }
 
-function fetchTomTom(){
-  if(!ligthDataSet) return;
+function fetchTomTom() {
+  if (!ligthDataSet) return;
 
-  for (const intersection of ligthDataSet) {
-    let tomtomObject = tomtomCall(intersection.lat, intersection.long);
+  for (let intersection of ligthDataSet) {
+    console.log(intersection);
 
-    let branches = intersection.branches;
+    IntersectModel.find({ 'Int_no': intersection.Int_no }, (err, res) => {
+      let tomtomObject = tomtomCall(intersection.lat, intersection.long);
 
-console.log(intersection);
+      console.log(res[0]);
+      
+      let branches = res[0].branches;
+      branches.filter(elem => elem.direction == 'N')[0].trafficInd = transfromTomTom(tomtomObject.TrafficN)
+      branches.filter(elem => elem.direction == 'S')[0].trafficInd = transfromTomTom(tomtomObject.TrafficS)
+      branches.filter(elem => elem.direction == 'E')[0].trafficInd = transfromTomTom(tomtomObject.TrafficE)
+      branches.filter(elem => elem.direction == 'W')[0].trafficInd = transfromTomTom(tomtomObject.TrafficW)
 
-    branches.filter(elem => elem.direction == 'N')[0].trafficInd = transfromTomTom(tomtomObject.TrafficN)
-    branches.filter(elem => elem.direction == 'S')[0].trafficInd = transfromTomTom(tomtomObject.TrafficS)
-    branches.filter(elem => elem.direction == 'E')[0].trafficInd = transfromTomTom(tomtomObject.TrafficE)
-    branches.filter(elem => elem.direction == 'W')[0].trafficInd = transfromTomTom(tomtomObject.TrafficW)
-    intersection.save();
+      res.save();
+    });
   }
 
   setTimeout(fetchTomTom, timerTomTom);
 }
 
-function transfromTomTom(value){
-  return (1-value)*100;
+function transfromTomTom(value) {
+  return (1 - value) * 100;
 }
 
 io.on("connection", client => {
@@ -122,11 +126,11 @@ io.on("connection", client => {
   client.on("feedback", data => {
     IntersectModel.find({ 'Int_no': data.data.id }, function (err, res) {
       if (err) return handleError(err);
-      if(!res[0]) return;
+      if (!res[0]) return;
 
       console.log(res[0]);
       dir = res[0].branches.filter(elem => elem.direction == data.data.dir)[0];
-      if(dir.trafficInd) dir.trafficInd += 50;
+      if (dir.trafficInd) dir.trafficInd += 50;
       if (dir.trafficInd > 100) dir.trafficInd = 100;
       res[0].save();
 
@@ -149,7 +153,7 @@ function tomtomCall(lat, long) {
 
   return tomtom;
 
-  let url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat+0.0003}%2C${long}&unit=KMPH&key=${process.env.tomtomapi}`
+  let url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat + 0.0003}%2C${long}&unit=KMPH&key=${process.env.tomtomapi}`
   axios.get(url).then((resp) => {
     if (resp.data.flowSegmentData) {
       tomtom.TrafficW = algoVraimentComplique(resp.data.flowSegmentData)
@@ -158,7 +162,7 @@ function tomtomCall(lat, long) {
     throw err
   })
 
-  url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat-0.0003}%2C${long}&unit=KMPH&key=${process.env.tomtomapi}`
+  url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat - 0.0003}%2C${long}&unit=KMPH&key=${process.env.tomtomapi}`
   axios.get(url).then((resp) => {
     if (resp.data.flowSegmentData) {
       tomtom.TrafficE = algoVraimentComplique(resp.data.flowSegmentData)
@@ -167,7 +171,7 @@ function tomtomCall(lat, long) {
     throw err
   })
 
-  url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat}%2C${long+0.0003}&unit=KMPH&key=${process.env.tomtomapi}`
+  url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat}%2C${long + 0.0003}&unit=KMPH&key=${process.env.tomtomapi}`
   axios.get(url).then((resp) => {
     if (resp.data.flowSegmentData) {
       tomtom.TrafficN = algoVraimentComplique(resp.data.flowSegmentData)
@@ -176,7 +180,7 @@ function tomtomCall(lat, long) {
     throw err
   })
 
-  url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat}%2C${long-0.0003}&unit=KMPH&key=${process.env.tomtomapi}`
+  url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat}%2C${long - 0.0003}&unit=KMPH&key=${process.env.tomtomapi}`
   axios.get(url).then((resp) => {
     if (resp.data.flowSegmentData) {
       tomtom.TrafficS = algoVraimentComplique(resp.data.flowSegmentData)
@@ -184,7 +188,7 @@ function tomtomCall(lat, long) {
   }).catch((err) => {
     throw err
   })
-  
+
   // client.emit("feedback-answer", { data: `Retour de l'algo vraiment fou ${algoVraimentComplique(resp.data.flowSegmentData)} || ${lat}, ${long}` })
   return tomtom
 }
@@ -237,7 +241,7 @@ function calculateTraffic(client) {
         branches: intersection.branches
       });
     }
-    if(ligthDataSet) fetchTomTom();
+    if (ligthDataSet) fetchTomTom();
     client.emit('lightStates', { data: ligthDataSet });
   });
   console.log('Update Done');
