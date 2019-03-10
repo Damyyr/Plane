@@ -50,7 +50,7 @@ function handleError(error) {
 }
 
 io.on("connection", client => {
-  setTimeout(calculateTraffic, 1000);
+  setTimeout(calculateTraffic, 3000);
   console.log(`Sup bitch ${client.id}`);
 
   client.on('lightStates', data => {
@@ -75,7 +75,7 @@ io.on("connection", client => {
       //   });
       // }
 
-      teeest();
+      //teeest();
       client.emit('lightStates', { data: ligthDataSet })
     });
   });
@@ -108,6 +108,7 @@ function teeest(){
 }
 
 function calculateTraffic(){
+  console.log('Traffic is updating...');
   IntersectModel.find({ 'Int_no': idsToUpdate }, (err, res) => {
     if (err) return handleError(err);
 
@@ -153,6 +154,7 @@ function calculateTraffic(){
       });
     }
   });
+  console.log('Update Done');
 }
 
 function algoVraimentComplique(flowData) {
