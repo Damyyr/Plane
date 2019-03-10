@@ -68,7 +68,7 @@ function setAllTraffic(isFull){
 
       console.log(res[0]);
 
-      res[0].save().then((item) => { console.log(item.Int_no) });
+      // res[0].save().then((item) => { console.log(item.Int_no) });
     });
   }
 }
@@ -176,6 +176,7 @@ function tomtomCall(lat, long) {
     TrafficE: 0,
     TrafficW: 0
   }
+  return tomtom;
   let urlLat = lat + 0.0003
   let url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${urlLat}%2C${long}&unit=KMPH&key=${process.env.tomtomapi}`
   axios.get(url).then((resp) => {
@@ -185,7 +186,7 @@ function tomtomCall(lat, long) {
   }).catch((err) => {
     throw err
   })
-  return tomtom;
+  
 
   urlLat = lat - 0.0003
   url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${urlLat}%2C${long}&unit=KMPH&key=${process.env.tomtomapi}`
