@@ -66,7 +66,7 @@ io.on("connection", client => {
   console.log(`Sup bitch ${client.id}`);
 
   client.on('lightStates', data => {
-    if(loadLights === []) {
+    if(ligthDataSet === []) {
       loadLights(data.data);
       setTimeout(calculateTraffic, timeToRefresh);
     }else{
