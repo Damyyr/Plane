@@ -261,8 +261,8 @@ function calculateTraffic(client) {
       let dirA = intersection.directions.filter(elem => elem.direction == 'A')[0];
       let dirB = intersection.directions.filter(elem => elem.direction == 'B')[0];
 
-      dirA.actualTimer = 10;
-      dirB.actualTimer = 10;
+      // dirA.actualTimer = 10;
+      // dirB.actualTimer = 10;
 
       let totalCycle = dirA.actualTimer + dirB.actualTimer;
       let direction = secondsSinceLastChange % totalCycle;
