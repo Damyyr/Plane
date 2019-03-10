@@ -94,7 +94,7 @@ function fetchTomTom() {
 
       console.log(res[0]);
 
-      res[0].save().then((item) => { console.log(item.Int_no) });
+      res[0].save();
     });
   }
 
