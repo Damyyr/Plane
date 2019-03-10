@@ -94,7 +94,7 @@ io.on("connection", client => {
   client.on('lightStates', data => {
     console.log(`GUESS WHO GOT SOME IDDSSSSSSSS`);
     console.log(data);
-    idsToUpdate = [678, 661]//data.data
+    idsToUpdate = data.data
     afterConnection = (idsToUpdate) ? true : false;
   });
   //   IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
