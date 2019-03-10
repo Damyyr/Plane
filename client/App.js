@@ -366,13 +366,13 @@ export default class App extends React.Component {
         direction = "E"
         break;
       case 0:
-        direction = "N"
+        direction = "S"
         break;
       case 1:
         direction = "W"
         break;
       case 2:
-        direction = "S"
+        direction = "N"
         break;
       default:
         break;
