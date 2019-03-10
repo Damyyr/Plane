@@ -62,6 +62,8 @@ function fetchTomTom(){
 
     let branches = intersection.branches;
 
+console.log(branches);
+
     branches.filter(elem => elem.direction == 'N')[0].trafficInd = transfromTomTom(tomtomObject.TrafficN)
     branches.filter(elem => elem.direction == 'S')[0].trafficInd = transfromTomTom(tomtomObject.TrafficS)
     branches.filter(elem => elem.direction == 'E')[0].trafficInd = transfromTomTom(tomtomObject.TrafficE)
@@ -144,6 +146,8 @@ function tomtomCall(lat, long) {
     TrafficE: 0,
     TrafficW: 0
   }
+
+  return tomtom;
 
   let url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat+0.0003}%2C${long}&unit=KMPH&key=${process.env.tomtomapi}`
   axios.get(url).then((resp) => {
