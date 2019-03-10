@@ -68,12 +68,12 @@ io.on("connection", client => {
     for (const intersection of res) {
       let lastChange = intersection.lastChange;
       let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
-      let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
-      let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
+      let dirA = intersection.directions.filter(elem => elem.direction == 'A')[0];
+      let dirB = intersection.directions.filter(elem => elem.direction == 'B')[0];
 
       let totalCycle = dirA.defaultTimer + dirB.defaultTimer;
       let direction = secondsSinceLastChange % totalCycle;
-      let greenFor = direction <= dirA.defaultTimer ? 'A' : 'B';
+      let greenFor = direction < dirA.defaultTimer ? 'A' : 'B';
 
       response.push({
         Int_no: intersection.Int_no,
@@ -82,7 +82,7 @@ io.on("connection", client => {
     }
 
     //teeest();
-    client.emit('lightStates', { data: intersection })
+    client.emit('lightStates', { data: response })
     // client.emit('lightStates', { data: ligthDataSet })
     });
   });
