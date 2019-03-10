@@ -152,10 +152,10 @@ function calculateTraffic() {
         // console.log(aToUpdate);
         // console.log(bToUpdate);
         
-        console.log(dirA.actualTimer);
-        console.log(dirB.actualTimer);
-        console.log(aToUpdate);
-        console.log(bToUpdate);
+        // console.log(dirA.actualTimer);
+        // console.log(dirB.actualTimer);
+        // console.log(aToUpdate);
+        // console.log(bToUpdate);
     
         //logs --------------------------------
 
@@ -171,9 +171,9 @@ function calculateTraffic() {
         let greenFor = direction <= dirA.actualTimer ? 'A' : 'B';
 
         //logs --------------------------------
-        console.log(totalCycle);
-        console.log(direction);
-        console.log(greenFor);
+        // console.log(totalCycle);
+        // console.log(direction);
+        // console.log(greenFor);
         
         
         //logs --------------------------------
