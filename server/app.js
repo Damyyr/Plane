@@ -57,7 +57,7 @@ io.on("connection", client => {
     IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
       if (err) return handleError(err);
 
-      idsToUpdate = data.data
+      idsToUpdate = [678, 661]//data.data
       // let response = []
       // for (const intersection of res) {
       //   let lastChange = intersection.lastChange;
@@ -114,26 +114,28 @@ function calculateTraffic(){
 
     ligthDataSet = []
     for (const intersection of res) {
-      branches = intersection.branches;
+      try{
 
-      pairA = branches.filter(elem => elem.direction = 'N' || elem.direction == 'S');
-      pairB = branches.filter(elem => elem.direction = 'E' || elem.direction == 'W');
- 
-      sumA = pairA[0].trafficInd + pairA[1].trafficInd;
-      sumB = pairB[0].trafficInd + pairB[1].trafficInd;
-
-      // add this scaled ratio to each direction actualTimer
-      ratio = ((sumA/sumB) * 100);
-      scaledRatio = Math.round(scale(ratio, 0, 200, modifierBounds[0], modifierBounds[1]));
-
-      let lastChange = intersection.lastChange;
-      let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
-      let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
+        let branches = intersection.branches;
+        
+        let pairA = branches.filter(elem => elem.direction = 'N' || elem.direction == 'S');
+        let pairB = branches.filter(elem => elem.direction = 'E' || elem.direction == 'W');
+        
+        let sumA = pairA[0].trafficInd + pairA[1].trafficInd;
+        let sumB = pairB[0].trafficInd + pairB[1].trafficInd;
+        
+        // add this scaled ratio to each direction actualTimer
+        let ratio = ((sumA/sumB) * 100);
+        let scaledRatio = Math.round(scale(ratio, 0, 200, modifierBounds[0], modifierBounds[1]));
+        
+        let lastChange = intersection.lastChange;
+        let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
+        let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
       let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
-
-      aToUpdate = dirA.defaultTimer + scaledRatio;
-      bToUpdate = dirB.defaultTimer + scaledRatio;
-
+      
+      let aToUpdate = dirA.defaultTimer + scaledRatio;
+      let bToUpdate = dirB.defaultTimer + scaledRatio;
+      
       let needSave = false;
       if((dirA.actualTimer != aToUpdate) || (dirB.actualTimer != bToUpdate)){
         needSave = true;
@@ -141,17 +143,22 @@ function calculateTraffic(){
         dirA.actualTimer = dirA.defaultTimer + scaledRatio;
         dirB.actualTimer = dirB.defaultTimer + scaledRatio;
       }
-
+      
       let totalCycle = dirA.defaultTimer + dirB.defaultTimer;
       let direction = secondsSinceLastChange % totalCycle;
       let greenFor = direction <= dirA.defaultTimer ? 'A' : 'B';
-
+      
       if(needSave) intersection.save();
-
+    
       ligthDataSet.push({
         Int_no: intersection.Int_no,
         greenFor: greenFor
       });
+      
+    }catch(error){
+      console.log(error);
+      console.log(intersection);
+    }
     }
   });
   console.log('Update Done');
