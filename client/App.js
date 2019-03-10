@@ -75,16 +75,12 @@ export default class App extends React.Component {
   };
 
   componentWillMount = () => {
-    this.state.socket.on("feedback-answer", resp => {
-      alert(resp.data)
-    })
 
     this.state.socket.on("lightStates", resp => {
       let markerLights = []
 
       // let markersToGet = this.getMarkersToGet()
       // console.log(markersToGet);
-      console.log(resp.data);
 
       for (const light of resp.data) {
         markerLights.push(this.changeLightColor(light))
@@ -94,15 +90,13 @@ export default class App extends React.Component {
 
     this.createMarkers();
 
-    this.state.socket.on("connection", resp => {
+    this.state.socket.on("connection", (socket) => {
       this.serverCallLightState()
     })
 
-    this.state.socket.on("clientSendLightStates", resp => {
+    this.state.socket.on("clientSendLightStates", (socket) => {
       this.serverCallLightState()
     })
-
-    // setInterval(this.serverCallLightState, 3000)
   }
 
   changeLightColor = (light) => {
@@ -155,7 +149,7 @@ export default class App extends React.Component {
   getMarkersToGet = () => {
     let markersToGet = []
     for (let marker of this.state.markers.filter(elm => elm.title === "Intersection" && elm.type === "circle")) {
-      if (calcDist(marker, this.state.markers.filter(elm => elm.user === true)[0]) > 1000) {
+      if (calcDist(marker, this.state.markers.filter(elm => elm.user === true)[0]) > 600) {
         continue;
       }
       
@@ -185,32 +179,20 @@ export default class App extends React.Component {
       }
 
       let m = {
-        type:"marker",
+        type:"circle",
         key: j,
         user: false,
-        title: "Pedestrian",
-        description: "Pedestrian",
+        title: "Intersection",
+        description: "Intersection",
         id:i.IntNo,
         coordinate:{latitude: i.Lat,
         longitude: i.Long},
         image: theImage,
         radius: 7,
+        color: (i.Pieton) ? orange : green
       }
 
-      // markers: [{
-      //   type:"marker",
-      //   key:0,
-      //   user: true,
-      //   radius:15,
-      //   // coordinate: {latitude: 46.816592, longitude: -71.200432},
-      //   coordinate: {latitude: startLat, longitude: startLong},
-      //   title:"title",
-      //   description:"description",
-      //   image:imgCar,
-      //   color: 'rgba(230,238,255,0.5)'
-      // }]
-
-      if (calcDist(m, this.state.markers.filter(elm => elm.user === true)[0]) > 1000) {
+      if (calcDist(m, this.state.markers.filter(elm => elm.user === true)[0]) > 600) {
         continue;
       }
 
@@ -289,8 +271,8 @@ export default class App extends React.Component {
     });
 
     let newPositionCar = demoRoute.getPosition(pointInRoute);
-    let prevPositionCalc = Math.floor(pointInRoute-speedOfRoute % 4);
-    let newPositionCalc = Math.floor(pointInRoute % 4);
+    prevPositionCalc = Math.floor(pointInRoute-speedOfRoute % 4);
+    newPositionCalc = Math.floor(pointInRoute % 4);
     let nextPositionCalc = Math.floor(pointInRoute+speedOfRoute % 4);
 
     if (newPositionCalc != prevPositionCalc) {
@@ -306,8 +288,12 @@ export default class App extends React.Component {
         if (nextPositionCalc == 4) {
           pointInRoute = 0;
         }
-        
-        this.refs.toast.show(<Text style={styles.toastText}>UN TOUR!</Text>,DURATION.LENGTH_LONG);
+        let dg = Math.floor(Math.random() * 11) + 13;
+        this.refs.toast.show(<View>
+          <Text style={styles.toastText}>🌳 {(dg/840).toFixed(2)} kg de co2</Text>
+          <Text style={styles.toastText}>💲 0.01 dollars</Text>
+          <Text style={styles.toastText}>⏲️ {dg} secondes</Text>
+          </View>,DURATION.LENGTH_LONG);
         
         this.moveTheCarMarker(indexToDelete, newPositionCar, marks)
       }
@@ -374,7 +360,25 @@ export default class App extends React.Component {
 
   onPressButton = () => {
     // setInterval(this.changeColor, 1000)
-    this.state.socket.emit("feedback", {data: "ok"})
+    let direction = "" 
+    switch (prevPositionCalc) {
+      case -1:
+        direction = "E"
+        break;
+      case 0:
+        direction = "N"
+        break;
+      case 1:
+        direction = "W"
+        break;
+      case 2:
+        direction = "S"
+        break;
+      default:
+        break;
+    }
+
+    this.state.socket.emit("feedback", {data: { id: demoRoutePoints[newPositionCalc].IntNo, dir: direction }})
   }
 
   render() {
@@ -390,12 +394,6 @@ export default class App extends React.Component {
     } else {
       return (
         <View style={styles.container}>
-        {/* <View style={styles.button}>
-          <Button title="ALLO" onPress={this.onPressButton}/>
-          <Button title="TOAST" onPress={()=>{
-                    this.refs.toast.show(<Text style={styles.toastText}>hello world!</Text>,DURATION.LENGTH_LONG);
-                }}/>
-        </View> */}
         <View style={styles.toast}>
             <Toast
                 ref="toast"
@@ -432,7 +430,7 @@ export default class App extends React.Component {
             </MapView>
           </View>
         </ScrollView>
-          <TouchableOpacity onPress={() => alert('FAB clicked!')} style={styles.fab}>
+          <TouchableOpacity onPress={this.onPressButton} style={styles.fab}>
             <Text style={styles.fabIcon}>
               <MaterialIcons name="traffic" style={styles.fabIcon}/>
             </Text>
