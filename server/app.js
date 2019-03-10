@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 8888
 
 afterConnection = false
 
-const timerFakeTraffic = 10000;
+const timerFakeTraffic = 25000;
 
 const modifierBounds = [-3, 3]
 idsToUpdate = []
@@ -111,7 +111,7 @@ io.on("connection", client => {
   setAllTraffic(false);
   setTimeout(setAllTraffic, timerFakeTraffic, true);
 
-  console.log(`Sup bitch ${client.id}`);
+  console.log(`Sup yo ${client.id}`);
   client.emit('connection', { data: '' });
 
   client.on('lightStates', data => {
@@ -225,7 +225,7 @@ function tomtomCall(lat, long) {
 }
 
 function imNotJammed() {
-  console.log('yo btw chu toujours up gro');
+  console.log('yo btw chu toujours up');
   setTimeout(imNotJammed, timeToRefresh);
 }
 
