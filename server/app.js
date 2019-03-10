@@ -71,7 +71,9 @@ function fetchTomTom() {
       branches.filter(elem => elem.direction == 'E')[0].trafficInd = transfromTomTom(tomtomObject.TrafficE)
       branches.filter(elem => elem.direction == 'W')[0].trafficInd = transfromTomTom(tomtomObject.TrafficW)
 
-      res.save();
+      console.log(res[0]);
+
+      res[0].save().then((item) => { console.log(item.Int_no) });
     });
   }
 
