@@ -114,8 +114,8 @@ function transfromTomTom(value) {
 io.on("connection", client => {
   setTimeout(calculateTraffic, timeToRefresh, client);
   // setTimeout(fetchTomTom, timerTomTom);
-  setAllTraffic(false);
-  setTimeout(setAllTraffic, timerFakeTraffic, true);
+  // setAllTraffic(false);
+  // setTimeout(setAllTraffic, timerFakeTraffic, true);
 
   console.log(`Sup yo ${client.id}`);
   client.emit('connection', { data: '' });
