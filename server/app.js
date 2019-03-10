@@ -7,6 +7,8 @@ const axios = require('axios')
 const hostname = "localhost"
 const PORT = process.env.PORT || 8888
 
+afterConnection == false
+
 const modifierBounds = [-3, 3]
 idsToUpdate = []
 ligthDataSet = []
@@ -95,6 +97,7 @@ io.on("connection", client => {
     console.log(`GUESS WHO GOT SOME IDDSSSSSSSS`);
     console.log(data);
     idsToUpdate = data.data
+    afterConnection = (idsToUpdate) ? true : false;
   });
   //   IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
   //   if (err) return handleError(err);
@@ -152,8 +155,6 @@ function tomtomCall(lat, long) {
     TrafficE: 0,
     TrafficW: 0
   }
-
-  return tomtom;
 
   let url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat + 0.0003}%2C${long}&unit=KMPH&key=${process.env.tomtomapi}`
   axios.get(url).then((resp) => {
@@ -243,9 +244,13 @@ function calculateTraffic(client) {
         branches: intersection.branches
       });
     }
-    if (ligthDataSet) fetchTomTom();
     client.emit('lightStates', { data: ligthDataSet });
   });
+  if(ligthDataSet && afterConnection){
+    afterConnection = false
+    fetchTomTom();
+    console.log('retrieve TomTom for the first time')
+  }
   console.log('Update Done');
   setTimeout(calculateTraffic, timeToRefresh, client);
 }
