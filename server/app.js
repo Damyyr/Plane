@@ -52,10 +52,10 @@ let IntersectModel = mongoose.model('IntersectModel', intersectSchema);
 function handleError(error) {
   console.log(error);
 }
-trafficInd
-trafficInd
-trafficInd
-trafficInd
+
+io.on("connection", client => {
+  setTimeout(calculateTraffic, timeToRefresh, client);
+  console.log(`Sup bitch ${client.id}`);
 
   client.on('lightStates', data => {
     idsToUpdate = data.data
@@ -98,7 +98,7 @@ trafficInd
       dir.trafficInd += 50;
       if(dir.trafficInd > 100) dir.trafficInd = 100;
       res.save();
-
+      
       // let url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${mintersect[0].lat}%2C${mintersect[0].long}&unit=KMPH&key=${process.env.tomtomapi}`
       // let url = `https://traffic.api.here.com/traffic/6.1/flow.json?bbox=${mintersect[0].lat}%2C${mintersect[0].long}%3B${mintersect[0].lat}%2C${mintersect[0].long}&app_id=${process.env.hereappid}&app_code=${process.env.hereappcode}`
       // axios.get(url).then((resp) => {
