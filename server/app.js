@@ -53,15 +53,32 @@ function handleError(error) {
   console.log(error);
 }
 
+function loadLights(ids){
+  IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
+    if (err) return handleError(err);
+      idsToUpdate = data.data;
+      ligthDataSet = res;
+    });
+}
+
 io.on("connection", client => {
-  setTimeout(calculateTraffic, timeToRefresh);
+  // setTimeout(calculateTraffic, timeToRefresh);
   console.log(`Sup bitch ${client.id}`);
 
   client.on('lightStates', data => {
-    IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
-      if (err) return handleError(err);
+    if(loadLights === []) {
+      loadLights(data.data);
+      setTimeout(calculateTraffic, timeToRefresh);
+    }else{
+      ligthDataSet;
+    }
 
-      idsToUpdate = data.data
+
+    // IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
+      // if (err) return handleError(err);
+
+      // idsToUpdate = data.data
+
       // let response = []
       // for (const intersection of res) {
       //   let lastChange = intersection.lastChange;
@@ -80,8 +97,8 @@ io.on("connection", client => {
       // }
 
       //teeest();
-      client.emit('lightStates', { data: ligthDataSet })
-    });
+      // client.emit('lightStates', { data: ligthDataSet })
+    // });
   });
 
   client.on("feedback", data => {
@@ -118,11 +135,12 @@ function imNotJammed(){
 
 function calculateTraffic() {
   console.log('Traffic is updating...');
-  IntersectModel.find({ 'Int_no': idsToUpdate }, (err, res) => {
-    if (err) return handleError(err);
+  // IntersectModel.find({ 'Int_no': idsToUpdate }, (err, res) => {
+    // if (err) return handleError(err);
 
-    ligthDataSet = []
-    for (const intersection of res) {
+    let array = [];
+    // ligthDataSet = []
+    for (const intersection of ligthDataSet) {
         let branches = intersection.branches;
 
         let pairA = branches.filter(elem => elem.direction = 'N' || elem.direction == 'S');
@@ -138,14 +156,15 @@ function calculateTraffic() {
         let direction = secondsSinceLastChange % totalCycle;
         let greenFor = direction <= dirA.actualTimer ? 'A' : 'B';
 
-        ligthDataSet.push({
+        array.push({
           Int_no: intersection.Int_no,
           greenFor: greenFor
         });
     }
     // intersection.save().then(() =>{ console.log('save'); });
-  });
+  // });
   console.log('Update Done');
+  ligthDataSet = array;
   setTimeout(calculateTraffic, timeToRefresh);
 }
 
