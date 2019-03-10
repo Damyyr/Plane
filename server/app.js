@@ -54,38 +54,38 @@ function handleError(error) {
 }
 
 io.on("connection", client => {
-  // setTimeout(calculateTraffic, timeToRefresh);
+  setTimeout(calculateTraffic, timeToRefresh, client);
   console.log(`Sup bitch ${client.id}`);
 
-  client.on('lightStates', data => {
-    IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
-    if (err) return handleError(err);
+  // client.on('lightStates', data => {
+  //   IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
+  //   if (err) return handleError(err);
 
-    idsToUpdate = [678,661] //data.data
-    // client.emit('lightStates', { data: res })
+  //   idsToUpdate = [678,661] //data.data
+  //   // client.emit('lightStates', { data: res })
 
-    let response = []
-    for (const intersection of res) {
-      let lastChange = intersection.lastChange;
-      let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
-      let dirA = intersection.directions.filter(elem => elem.direction == 'A')[0];
-      let dirB = intersection.directions.filter(elem => elem.direction == 'B')[0];
+  //   let response = []
+  //   for (const intersection of res) {
+  //     let lastChange = intersection.lastChange;
+  //     let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
+  //     let dirA = intersection.directions.filter(elem => elem.direction == 'A')[0];
+  //     let dirB = intersection.directions.filter(elem => elem.direction == 'B')[0];
 
-      let totalCycle = dirA.defaultTimer + dirB.defaultTimer;
-      let direction = secondsSinceLastChange % totalCycle;
-      let greenFor = direction < dirA.defaultTimer ? 'A' : 'B';
+  //     let totalCycle = dirA.defaultTimer + dirB.defaultTimer;
+  //     let direction = secondsSinceLastChange % totalCycle;
+  //     let greenFor = direction < dirA.defaultTimer ? 'A' : 'B';
 
-      response.push({
-        Int_no: intersection.Int_no,
-        greenFor: greenFor
-      });
-    }
+  //     response.push({
+  //       Int_no: intersection.Int_no,
+  //       greenFor: greenFor
+  //     });
+  //   }
 
-    //teeest();
-    client.emit('lightStates', { data: response })
-    // client.emit('lightStates', { data: ligthDataSet })
-    });
-  });
+  //   //teeest();
+  //   client.emit('lightStates', { data: response })
+  //   // client.emit('lightStates', { data: ligthDataSet })
+  //   });
+  // });
 
   client.on("feedback", data => {
     IntersectModel.find({ 'Int_no': 661 }, 'lat long', function (err, mintersect) {
@@ -119,8 +119,9 @@ function imNotJammed() {
   setTimeout(imNotJammed, timeToRefresh);
 }
 
-function calculateTraffic() {
+function calculateTraffic(client) {
   console.log('Traffic is updating...');
+  console.log(client);
   IntersectModel.find({ 'Int_no': idsToUpdate }, (err, res) => {
   if (err) return handleError(err);
 
@@ -149,9 +150,10 @@ function calculateTraffic() {
       greenFor: greenFor
     });
   }
-  // intersection.save().then(() =>{ console.log('save'); });
+  
   });
   console.log('Update Done');
+  client.emit('lightStates', { data: response });
   setTimeout(calculateTraffic, timeToRefresh);
 }
 
