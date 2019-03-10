@@ -128,63 +128,22 @@ function calculateTraffic() {
         let pairA = branches.filter(elem => elem.direction = 'N' || elem.direction == 'S');
         let pairB = branches.filter(elem => elem.direction = 'E' || elem.direction == 'W');
 
-        let sumA = pairA[0].trafficInd + pairA[1].trafficInd;
-        let sumB = pairB[0].trafficInd + pairB[1].trafficInd;
-
-        let modA = Math.round(scale(sumA, 0, 200, modifierBounds[0], modifierBounds[1]));
-        let modB = Math.round(scale(sumB, 0, 200, modifierBounds[0], modifierBounds[1]));
-
         // add this scaled ratio to each direction actualTimer
         let lastChange = intersection.lastChange;
         let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
         let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
         let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
 
-        let aToUpdate = dirA.defaultTimer + modA;
-        let bToUpdate = dirB.defaultTimer + modB;
-
-        //logs --------------------------------
-        // console.log(sumA);
-        // console.log(sumB);
-        // console.log(ratio);
-        // console.log(scaledRatio);
-        // console.log(aToUpdate);
-        // console.log(bToUpdate);
-        
-        // console.log(dirA.actualTimer);
-        // console.log(dirB.actualTimer);
-        // console.log(aToUpdate);
-        // console.log(bToUpdate);
-    
-        //logs --------------------------------
-
-        if ((dirA.actualTimer != aToUpdate) || (dirB.actualTimer != bToUpdate)) {
-          intersection.lastChange = new Date;
-          dirA.actualTimer = aToUpdate;
-          dirB.actualTimer = bToUpdate;
-          console.log(intersection);
-        }
-
         let totalCycle = dirA.actualTimer + dirB.actualTimer;
         let direction = secondsSinceLastChange % totalCycle;
         let greenFor = direction <= dirA.actualTimer ? 'A' : 'B';
-
-        //logs --------------------------------
-        // console.log(totalCycle);
-        // console.log(direction);
-        // console.log(greenFor);
-        
-        
-        //logs --------------------------------
-
-        // if (needSave) .then(() =>{ console.log('save'); });
 
         ligthDataSet.push({
           Int_no: intersection.Int_no,
           greenFor: greenFor
         });
     }
-    res.save().then(() =>{ console.log('save'); });
+    // intersection.save().then(() =>{ console.log('save'); });
   });
   console.log('Update Done');
   setTimeout(calculateTraffic, timeToRefresh);
