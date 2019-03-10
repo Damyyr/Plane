@@ -153,8 +153,8 @@ function calculateTraffic(client) {
   
   });
   console.log('Update Done');
-  client.emit('lightStates', { data: response });
-  setTimeout(calculateTraffic, timeToRefresh);
+  client.emit('lightStates', { data: ligthDataSet });
+  setTimeout(calculateTraffic, timeToRefresh, client);
 }
 
 function algoVraimentComplique(flowData) {
