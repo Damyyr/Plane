@@ -58,7 +58,6 @@ io.on("connection", client => {
   console.log(`Sup bitch ${client.id}`);
 
   client.on('lightStates', data => {
-    console.log(data.data);
     // IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
     // if (err) return handleError(err);
 
@@ -136,8 +135,6 @@ function calculateTraffic() {
     let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
     let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
     let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
-    console.log(dirA);
-    console.log(dirB);
     
     dirA.actualTimer = 2;
     dirB.actualTimer = 2;
@@ -145,8 +142,6 @@ function calculateTraffic() {
     let totalCycle = dirA.actualTimer + dirB.actualTimer;
     let direction = secondsSinceLastChange % totalCycle;
     let greenFor = direction <= dirA.actualTimer ? 'A' : 'B';
-
-    intersection.save().then((a) =>{ console.log(`save ${a}`); });
 
     ligthDataSet.push({
       Int_no: intersection.Int_no,
