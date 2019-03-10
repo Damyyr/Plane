@@ -7,14 +7,14 @@ const axios = require('axios')
 const hostname = "localhost"
 const PORT = process.env.PORT || 8888
 
-const modifierBounds = [ -3, 3 ]
+const modifierBounds = [-3, 3]
 idsToUpdate = []
 ligthDataSet = []
 
 mongoose.connect(`mongodb://${process.env.dbuser}:${process.env.dbpassword}@ds163822.mlab.com:63822/plane`, option).then(
   () => {
-     console.log('Successfully connected'); 
-    },
+    console.log('Successfully connected');
+  },
   err => { throw err }
 );
 
@@ -102,63 +102,72 @@ io.on("connection", client => {
   })
 })
 
-function teeest(){
+function teeest() {
   console.log('idsToUpdate');
   console.log(idsToUpdate);
 }
 
-function calculateTraffic(){
+function calculateTraffic() {
   console.log('Traffic is updating...');
   IntersectModel.find({ 'Int_no': idsToUpdate }, (err, res) => {
     if (err) return handleError(err);
 
     ligthDataSet = []
     for (const intersection of res) {
-      try{
-
+      try {
         let branches = intersection.branches;
-        
+
         let pairA = branches.filter(elem => elem.direction = 'N' || elem.direction == 'S');
         let pairB = branches.filter(elem => elem.direction = 'E' || elem.direction == 'W');
-        
+
         let sumA = pairA[0].trafficInd + pairA[1].trafficInd;
         let sumB = pairB[0].trafficInd + pairB[1].trafficInd;
-        
+
         // add this scaled ratio to each direction actualTimer
-        let ratio = ((sumA/sumB) * 100);
+        let ratio = ((sumA / sumB) * 100);
         let scaledRatio = Math.round(scale(ratio, 0, 200, modifierBounds[0], modifierBounds[1]));
-        
+
         let lastChange = intersection.lastChange;
         let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
         let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
-      let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
-      
-      let aToUpdate = dirA.defaultTimer + scaledRatio;
-      let bToUpdate = dirB.defaultTimer + scaledRatio;
-      
-      let needSave = false;
-      if((dirA.actualTimer != aToUpdate) || (dirB.actualTimer != bToUpdate)){
-        needSave = true;
-        intersection.lastChange = new Date;
-        dirA.actualTimer = dirA.defaultTimer + scaledRatio;
-        dirB.actualTimer = dirB.defaultTimer + scaledRatio;
+        let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
+
+        let aToUpdate = dirA.defaultTimer + scaledRatio;
+        let bToUpdate = dirB.defaultTimer + scaledRatio;
+
+        //logs --------------------------------
+        console.log(sumA);
+        console.log(sumB);
+        console.log(ratio);
+        console.log(scaledRatio);
+        console.log(aToUpdate);
+        console.log(bToUpdate);
+        
+        //logs --------------------------------
+
+        let needSave = false;
+        if ((dirA.actualTimer != aToUpdate) || (dirB.actualTimer != bToUpdate)) {
+          needSave = true;
+          intersection.lastChange = new Date;
+          dirA.actualTimer = dirA.defaultTimer + scaledRatio;
+          dirB.actualTimer = dirB.defaultTimer + scaledRatio;
+        }
+
+        let totalCycle = dirA.defaultTimer + dirB.defaultTimer;
+        let direction = secondsSinceLastChange % totalCycle;
+        let greenFor = direction <= dirA.defaultTimer ? 'A' : 'B';
+
+        if (needSave) intersection.save();
+
+        ligthDataSet.push({
+          Int_no: intersection.Int_no,
+          greenFor: greenFor
+        });
+
+      } catch (error) {
+        console.log(error);
+        console.log(intersection);
       }
-      
-      let totalCycle = dirA.defaultTimer + dirB.defaultTimer;
-      let direction = secondsSinceLastChange % totalCycle;
-      let greenFor = direction <= dirA.defaultTimer ? 'A' : 'B';
-      
-      if(needSave) intersection.save();
-    
-      ligthDataSet.push({
-        Int_no: intersection.Int_no,
-        greenFor: greenFor
-      });
-      
-    }catch(error){
-      console.log(error);
-      console.log(intersection);
-    }
     }
   });
   console.log('Update Done');
