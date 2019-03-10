@@ -153,8 +153,8 @@ function tomtomCall(lat, long) {
     TrafficE: 0,
     TrafficW: 0
   }
-
-  let url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat + 0.0003}%2C${long}&unit=KMPH&key=${process.env.tomtomapi}`
+  let urlLat = lat + 0.0003
+  let url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${urlLat}%2C${long}&unit=KMPH&key=${process.env.tomtomapi}`
   axios.get(url).then((resp) => {
     if (resp.data.flowSegmentData) {
       tomtom.TrafficW = algoVraimentComplique(resp.data.flowSegmentData)
@@ -164,7 +164,8 @@ function tomtomCall(lat, long) {
   })
   return tomtom;
 
-  url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat - 0.0003}%2C${long}&unit=KMPH&key=${process.env.tomtomapi}`
+  let urlLat = lat - 0.0003
+  url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${urlLat}%2C${long}&unit=KMPH&key=${process.env.tomtomapi}`
   axios.get(url).then((resp) => {
     if (resp.data.flowSegmentData) {
       tomtom.TrafficE = algoVraimentComplique(resp.data.flowSegmentData)
@@ -173,7 +174,8 @@ function tomtomCall(lat, long) {
     throw err
   })
 
-  url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat}%2C${long + 0.0003}&unit=KMPH&key=${process.env.tomtomapi}`
+  let urlLong = long + 0.0003
+  url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat}%2C${urlLong}&unit=KMPH&key=${process.env.tomtomapi}`
   axios.get(url).then((resp) => {
     if (resp.data.flowSegmentData) {
       tomtom.TrafficN = algoVraimentComplique(resp.data.flowSegmentData)
@@ -182,7 +184,8 @@ function tomtomCall(lat, long) {
     throw err
   })
 
-  url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat}%2C${long - 0.0003}&unit=KMPH&key=${process.env.tomtomapi}`
+  let urlLong = long - 0.0003
+  url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat}%2C${urlLong}&unit=KMPH&key=${process.env.tomtomapi}`
   axios.get(url).then((resp) => {
     if (resp.data.flowSegmentData) {
       tomtom.TrafficS = algoVraimentComplique(resp.data.flowSegmentData)
