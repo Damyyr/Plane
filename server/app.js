@@ -113,7 +113,7 @@ function calculateTraffic(){
 
     ligthDataSet = []
     for (const intersection of res) {
-      branches = intersection.branchesSchema;
+      branches = intersection.branches;
 
       pairA = branches.filter(elem => elem.direction = 'N' || elem.direction == 'S');
       pairB = branches.filter(elem => elem.direction = 'E' || elem.direction == 'W');
