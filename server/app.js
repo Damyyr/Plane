@@ -58,12 +58,6 @@ io.on("connection", client => {
   console.log(`Sup bitch ${client.id}`);
   client.emit('connection', { data: '' });
 
-  client.on('getId', data => {
-    console.log('dataaaa');
-    console.log(data)
-    // idsToUpdate = data.data
-  });
-
   client.on('lightStates', data => {
     console.log(`GUESS WHO GOT SOME IDDSSSSSSSS`);
     console.log(data);
@@ -101,7 +95,8 @@ io.on("connection", client => {
   client.on("feedback", data => {
     IntersectModel.find({ 'Int_no': data.data.id }, function (err, res) {
       if (err) return handleError(err);
-
+      if(!res[0]) return;
+      
       console.log(res[0]);
       dir = res[0].branches.filter(elem => elem.direction == data.data.dir)[0];
       dir.trafficInd += 50;
