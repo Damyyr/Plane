@@ -8,7 +8,7 @@ const hostname = "localhost"
 const PORT = process.env.PORT || 8888
 
 mongoose.connect(`mongodb://${process.env.dbuser}:${process.env.dbpassword}@ds163822.mlab.com:63822/plane`, option).then(
-  () => { console.log('Successfully connected');},
+  () => { console.log('Successfully connected'); },
   err => { throw err }
 );
 
@@ -38,16 +38,16 @@ let intersectSchema = mongoose.Schema({
 
 let IntersectModel = mongoose.model('IntersectModel', intersectSchema);
 
-function handleError(error){
+function handleError(error) {
   console.log(error);
 }
 
 io.on("connection", client => {
 
   console.log(`Sup bitch ${client.id}`);
-  
+
   client.on('lightStates', data => {
-    IntersectModel.find({'Int_no': data.data}, (err, res) => {
+    IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
       if (err) return handleError(err);
 
       let response = []
@@ -71,7 +71,7 @@ io.on("connection", client => {
     });
   });
 
-  client.on("feedback", data => { 
+  client.on("feedback", data => {
     IntersectModel.find({ 'Int_no': 661 }, 'lat long', function (err, mintersect) {
       if (err) return handleError(err);
 
@@ -88,7 +88,7 @@ io.on("connection", client => {
     })
   })
 
-  client.on("disconnect", () => { 
+  client.on("disconnect", () => {
     console.log(`bye ${client.id}`)
   })
 })
@@ -96,21 +96,21 @@ io.on("connection", client => {
 function algoVraimentComplique(flowData) {
   let a = flowData.currentSpeed
   let b = flowData.freeFlowSpeed
-  let ab = a/b;
+  let ab = a / b;
   return `${a} || ${b} || ${ab}`;
 }
 
 server.listen(PORT, hostname, () => {
-    console.log("Started")
-  
-    console.log(`Server running at http://${hostname}:${PORT}/`);
-  
+  console.log("Started")
+
+  console.log(`Server running at http://${hostname}:${PORT}/`);
+
 });
 
 // ------------------------------------------------------- Migration de pauvre
 
 // for (const i of intersect) {
-    
+
 //   let dirA = {
 //     directionTimer: i.Direction1,
 //     direction: "A"
@@ -162,7 +162,7 @@ server.listen(PORT, hostname, () => {
 
 //   Intersect_inst.save(function(err) {
 //     if (err) throw err;
-  
+
 //     console.log('UserSchema successfully saved.');
 //   });
 // }
