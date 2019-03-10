@@ -57,7 +57,9 @@ io.on("connection", client => {
   setTimeout(calculateTraffic, timeToRefresh, client);
   console.log(`Sup bitch ${client.id}`);
 
-  // client.on('lightStates', data => {
+  client.on('lightStates', data => {
+    idsToUpdate = data.data
+  });
   //   IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
   //   if (err) return handleError(err);
 
@@ -121,7 +123,7 @@ function imNotJammed() {
 
 function calculateTraffic(client) {
   console.log('Traffic is updating...');
-  console.log(client);
+  // console.log(client);
   IntersectModel.find({ 'Int_no': idsToUpdate }, (err, res) => {
   if (err) return handleError(err);
 
