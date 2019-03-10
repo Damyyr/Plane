@@ -56,6 +56,7 @@ function handleError(error) {
 io.on("connection", client => {
   setTimeout(calculateTraffic, timeToRefresh, client);
   console.log(`Sup bitch ${client.id}`);
+  client.emit('connection', { data: '' });
 
   client.on('lightStates', data => {
     console.log("GUESS WHO GOT SOME IDDSSSSSSSS");
@@ -97,7 +98,7 @@ io.on("connection", client => {
       console.log(res[0]);
       dir = res[0].branches.filter(elem => elem.direction == data.data.dir)[0];
       dir.trafficInd += 50;
-      if(dir.trafficInd > 100) dir.trafficInd = 100;
+      if (dir.trafficInd > 100) dir.trafficInd = 100;
       res[0].save();
 
       // let url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${mintersect[0].lat}%2C${mintersect[0].long}&unit=KMPH&key=${process.env.tomtomapi}`
@@ -132,44 +133,44 @@ function calculateTraffic(client) {
   console.log('Traffic is updating...');
   // console.log(client);
   IntersectModel.find({ 'Int_no': idsToUpdate }, (err, res) => {
-  if (err) return handleError(err);
+    if (err) return handleError(err);
 
-  ligthDataSet = []
-  for (const intersection of res) {
-    let branches = intersection.branches;
+    ligthDataSet = []
+    for (const intersection of res) {
+      let branches = intersection.branches;
 
-    let pairA = branches.filter(elem => elem.direction == 'N' || elem.direction == 'S');
-    let pairB = branches.filter(elem => elem.direction == 'E' || elem.direction == 'W');
+      let pairA = branches.filter(elem => elem.direction == 'N' || elem.direction == 'S');
+      let pairB = branches.filter(elem => elem.direction == 'E' || elem.direction == 'W');
 
-    let sumA = pairA[0].trafficInd + pairA[1].trafficInd
-    let sumB = pairB[0].trafficInd + pairB[1].trafficInd
+      let sumA = pairA[0].trafficInd + pairA[1].trafficInd
+      let sumB = pairB[0].trafficInd + pairB[1].trafficInd
 
-    let modA = scale(sumA, 0, 200, modifierBounds[0], modifierBounds[1])
-    let modB = scale(sumB, 0, 200, modifierBounds[0], modifierBounds[1])
+      let modA = scale(sumA, 0, 200, modifierBounds[0], modifierBounds[1])
+      let modB = scale(sumB, 0, 200, modifierBounds[0], modifierBounds[1])
 
-    // add this scaled ratio to each direction actualTimer
-    let lastChange = intersection.lastChange;
-    let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
-    let dirA = intersection.directions.filter(elem => elem.direction == 'A')[0];
-    let dirB = intersection.directions.filter(elem => elem.direction == 'B')[0];
-    
-    dirA.actualTimer = 10;
-    dirB.actualTimer = 10;
+      // add this scaled ratio to each direction actualTimer
+      let lastChange = intersection.lastChange;
+      let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
+      let dirA = intersection.directions.filter(elem => elem.direction == 'A')[0];
+      let dirB = intersection.directions.filter(elem => elem.direction == 'B')[0];
 
-    let totalCycle = dirA.actualTimer + dirB.actualTimer;
-    let direction = secondsSinceLastChange % totalCycle;
-    let greenFor = direction < dirA.actualTimer ? 'A' : 'B';
+      dirA.actualTimer = 10;
+      dirB.actualTimer = 10;
 
-    ligthDataSet.push({
-      Int_no: intersection.Int_no,
-      greenFor: greenFor,
-      TrafficN: pairA.filter(elem => elem.direction == 'N')[0].trafficInd,
-      TrafficS: pairA.filter(elem => elem.direction == 'S')[0].trafficInd,
-      TrafficE: pairB.filter(elem => elem.direction == 'E')[0].trafficInd,
-      TrafficW: pairB.filter(elem => elem.direction == 'W')[0].trafficInd
-    });
-  }
-  
+      let totalCycle = dirA.actualTimer + dirB.actualTimer;
+      let direction = secondsSinceLastChange % totalCycle;
+      let greenFor = direction < dirA.actualTimer ? 'A' : 'B';
+
+      ligthDataSet.push({
+        Int_no: intersection.Int_no,
+        greenFor: greenFor,
+        TrafficN: pairA.filter(elem => elem.direction == 'N')[0].trafficInd,
+        TrafficS: pairA.filter(elem => elem.direction == 'S')[0].trafficInd,
+        TrafficE: pairB.filter(elem => elem.direction == 'E')[0].trafficInd,
+        TrafficW: pairB.filter(elem => elem.direction == 'W')[0].trafficInd
+      });
+    }
+
   });
   console.log('Update Done');
   client.emit('lightStates', { data: ligthDataSet });
