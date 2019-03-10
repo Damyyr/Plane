@@ -65,14 +65,14 @@ function setAllTraffic(isFull){
       let tomtomObject = tomtomCall(intersection.lat, intersection.long);
       
       let branches = res[0].branches;
-      branches.filter(elem => elem.direction == 'N')[0].trafficInd = percent//transfromTomTom(tomtomObject.TrafficN)
-      branches.filter(elem => elem.direction == 'S')[0].trafficInd = percent//transfromTomTom(tomtomObject.TrafficS)
-      branches.filter(elem => elem.direction == 'E')[0].trafficInd = percent//transfromTomTom(tomtomObject.TrafficE)
-      branches.filter(elem => elem.direction == 'W')[0].trafficInd = percent//transfromTomTom(tomtomObject.TrafficW)
+      branches.filter(elem => elem.direction == 'N')[0].trafficInd = 0//transfromTomTom(tomtomObject.TrafficN)
+      branches.filter(elem => elem.direction == 'S')[0].trafficInd = 0//transfromTomTom(tomtomObject.TrafficS)
+      branches.filter(elem => elem.direction == 'E')[0].trafficInd = 0//transfromTomTom(tomtomObject.TrafficE)
+      branches.filter(elem => elem.direction == 'W')[0].trafficInd = 0//transfromTomTom(tomtomObject.TrafficW)
 
       console.log(res[0]);
 
-      // res[0].save().then((item) => { console.log(item.Int_no) });
+     res[0].save().then((item) => { console.log(item.Int_no) });
     });
   }
 
