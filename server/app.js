@@ -53,12 +53,16 @@ function handleError(error) {
   console.log(error);
 }
 
-function loadLights(ids){
+function loadLights(ids) {
   IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
     if (err) return handleError(err);
-      idsToUpdate = data.data;
-      ligthDataSet = res;
-    });
+    idsToUpdate = data.data;
+    ligthDataSet = res;
+
+    for (const intersection of res) {
+      ligthDataSet.push(intersection);
+    }
+  });
 }
 
 io.on("connection", client => {
@@ -66,38 +70,38 @@ io.on("connection", client => {
   console.log(`Sup bitch ${client.id}`);
 
   client.on('lightStates', data => {
-    if(ligthDataSet === []) {
+    if (ligthDataSet === []) {
       loadLights(data.data);
       setTimeout(calculateTraffic, timeToRefresh);
-    }else{
+    } else {
       ligthDataSet;
     }
 
 
     // IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
-      // if (err) return handleError(err);
+    // if (err) return handleError(err);
 
-      // idsToUpdate = data.data
+    // idsToUpdate = data.data
 
-      // let response = []
-      // for (const intersection of res) {
-      //   let lastChange = intersection.lastChange;
-      //   let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
-      //   let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
-      //   let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
+    // let response = []
+    // for (const intersection of res) {
+    //   let lastChange = intersection.lastChange;
+    //   let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
+    //   let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
+    //   let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
 
-      //   let totalCycle = dirA.defaultTimer + dirB.defaultTimer;
-      //   let direction = secondsSinceLastChange % totalCycle;
-      //   let greenFor = direction <= dirA.defaultTimer ? 'A' : 'B';
+    //   let totalCycle = dirA.defaultTimer + dirB.defaultTimer;
+    //   let direction = secondsSinceLastChange % totalCycle;
+    //   let greenFor = direction <= dirA.defaultTimer ? 'A' : 'B';
 
-      //   response.push({
-      //     Int_no: intersection.Int_no,
-      //     greenFor: greenFor
-      //   });
-      // }
+    //   response.push({
+    //     Int_no: intersection.Int_no,
+    //     greenFor: greenFor
+    //   });
+    // }
 
-      //teeest();
-      // client.emit('lightStates', { data: ligthDataSet })
+    //teeest();
+    // client.emit('lightStates', { data: ligthDataSet })
     // });
   });
 
@@ -128,7 +132,7 @@ function teeest() {
   console.log(idsToUpdate);
 }
 
-function imNotJammed(){
+function imNotJammed() {
   console.log('yo btw chu toujours up gro');
   setTimeout(imNotJammed, timeToRefresh);
 }
@@ -136,32 +140,32 @@ function imNotJammed(){
 function calculateTraffic() {
   console.log('Traffic is updating...');
   // IntersectModel.find({ 'Int_no': idsToUpdate }, (err, res) => {
-    // if (err) return handleError(err);
+  // if (err) return handleError(err);
 
-    let array = [];
-    // ligthDataSet = []
-    for (const intersection of ligthDataSet) {
-        let branches = intersection.branches;
+  let array = [];
+  // ligthDataSet = []
+  for (const intersection of ligthDataSet) {
+    let branches = intersection.branches;
 
-        let pairA = branches.filter(elem => elem.direction = 'N' || elem.direction == 'S');
-        let pairB = branches.filter(elem => elem.direction = 'E' || elem.direction == 'W');
+    let pairA = branches.filter(elem => elem.direction = 'N' || elem.direction == 'S');
+    let pairB = branches.filter(elem => elem.direction = 'E' || elem.direction == 'W');
 
-        // add this scaled ratio to each direction actualTimer
-        let lastChange = intersection.lastChange;
-        let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
-        let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
-        let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
+    // add this scaled ratio to each direction actualTimer
+    let lastChange = intersection.lastChange;
+    let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
+    let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
+    let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
 
-        let totalCycle = dirA.actualTimer + dirB.actualTimer;
-        let direction = secondsSinceLastChange % totalCycle;
-        let greenFor = direction <= dirA.actualTimer ? 'A' : 'B';
+    let totalCycle = dirA.actualTimer + dirB.actualTimer;
+    let direction = secondsSinceLastChange % totalCycle;
+    let greenFor = direction <= dirA.actualTimer ? 'A' : 'B';
 
-        array.push({
-          Int_no: intersection.Int_no,
-          greenFor: greenFor
-        });
-    }
-    // intersection.save().then(() =>{ console.log('save'); });
+    array.push({
+      Int_no: intersection.Int_no,
+      greenFor: greenFor
+    });
+  }
+  // intersection.save().then(() =>{ console.log('save'); });
   // });
   console.log('Update Done');
   ligthDataSet = array;
