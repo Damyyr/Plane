@@ -162,6 +162,7 @@ function tomtomCall(lat, long) {
   }).catch((err) => {
     throw err
   })
+  return tomtom;
 
   url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat - 0.0003}%2C${long}&unit=KMPH&key=${process.env.tomtomapi}`
   axios.get(url).then((resp) => {
@@ -259,6 +260,10 @@ function algoVraimentComplique(flowData) {
   let a = flowData.currentSpeed
   let b = flowData.freeFlowSpeed
   let ab = a / b;
+  console.log('flowData')
+  console.log(flowData);
+  console.log(ab);
+  
   return ab;
 }
 
