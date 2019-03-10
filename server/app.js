@@ -12,6 +12,7 @@ idsToUpdate = []
 ligthDataSet = []
 
 const timeToRefresh = 4000;
+const timerTomTom = 120000;
 
 // setTimeout(imNotJammed, timeToRefresh);
 
@@ -53,8 +54,32 @@ function handleError(error) {
   console.log(error);
 }
 
+function fetchTomTom(){
+  if(!ligthDataSet) return;
+
+  for (const intersection of ligthDataSet) {
+    let tomtomObject = tomtomCall(intersection.lat, intersection.long);
+
+    let branches = intersection.branches;
+
+    branches.filter(elem => elem.direction == 'N')[0].trafficInd = transfromTomTom(tomtomObject.TrafficN)
+    branches.filter(elem => elem.direction == 'S')[0].trafficInd = transfromTomTom(tomtomObject.TrafficS)
+    branches.filter(elem => elem.direction == 'E')[0].trafficInd = transfromTomTom(tomtomObject.TrafficE)
+    branches.filter(elem => elem.direction == 'W')[0].trafficInd = transfromTomTom(tomtomObject.TrafficW)
+    intersection.save();
+  }
+
+  setTimeout(fetchTomTom, timerTomTom);
+}
+
+function transfromTomTom(value){
+  return (1-value)*100;
+}
+
 io.on("connection", client => {
   setTimeout(calculateTraffic, timeToRefresh, client);
+  setTimeout(fetchTomTom, timerTomTom);
+
   console.log(`Sup bitch ${client.id}`);
   client.emit('connection', { data: '' });
 
@@ -103,16 +128,7 @@ io.on("connection", client => {
       if (dir.trafficInd > 100) dir.trafficInd = 100;
       res[0].save();
 
-      // let url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${mintersect[0].lat}%2C${mintersect[0].long}&unit=KMPH&key=${process.env.tomtomapi}`
-      // let url = `https://traffic.api.here.com/traffic/6.1/flow.json?bbox=${mintersect[0].lat}%2C${mintersect[0].long}%3B${mintersect[0].lat}%2C${mintersect[0].long}&app_id=${process.env.hereappid}&app_code=${process.env.hereappcode}`
-      // axios.get(url).then((resp) => {
-      //   console.log(resp.data.flowSegmentData);
-      //   if (resp.data.flowSegmentData) {
-      //     client.emit("feedback-answer", { data: `Retour de l'algo vraiment fou ${algoVraimentComplique(resp.data.flowSegmentData)} || ${mintersect[0].lat}, ${mintersect[0].long}` })
-      //   }
-      // }).catch((err) => {
-      //   throw err
-      // })
+
     })
   })
 
@@ -121,9 +137,52 @@ io.on("connection", client => {
   })
 })
 
-function teeest() {
-  console.log('idsToUpdate');
-  console.log(idsToUpdate);
+function tomtomCall(lat, long) {
+  let tomtom = {
+    TrafficN = 0,
+    TrafficS = 0,
+    TrafficE = 0,
+    TrafficW = 0
+  }
+
+  let url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat+0.0003}%2C${long}&unit=KMPH&key=${process.env.tomtomapi}`
+  axios.get(url).then((resp) => {
+    if (resp.data.flowSegmentData) {
+      tomtom.TrafficW = algoVraimentComplique(resp.data.flowSegmentData)
+    }
+  }).catch((err) => {
+    throw err
+  })
+
+  url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat-0.0003}%2C${long}&unit=KMPH&key=${process.env.tomtomapi}`
+  axios.get(url).then((resp) => {
+    if (resp.data.flowSegmentData) {
+      tomtom.TrafficE = algoVraimentComplique(resp.data.flowSegmentData)
+    }
+  }).catch((err) => {
+    throw err
+  })
+
+  url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat}%2C${long+0.0003}&unit=KMPH&key=${process.env.tomtomapi}`
+  axios.get(url).then((resp) => {
+    if (resp.data.flowSegmentData) {
+      tomtom.TrafficN = algoVraimentComplique(resp.data.flowSegmentData)
+    }
+  }).catch((err) => {
+    throw err
+  })
+
+  url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat}%2C${long-0.0003}&unit=KMPH&key=${process.env.tomtomapi}`
+  axios.get(url).then((resp) => {
+    if (resp.data.flowSegmentData) {
+      tomtom.TrafficS = algoVraimentComplique(resp.data.flowSegmentData)
+    }
+  }).catch((err) => {
+    throw err
+  })
+  
+  // client.emit("feedback-answer", { data: `Retour de l'algo vraiment fou ${algoVraimentComplique(resp.data.flowSegmentData)} || ${lat}, ${long}` })
+  return tomtom
 }
 
 function imNotJammed() {
@@ -133,8 +192,6 @@ function imNotJammed() {
 
 function calculateTraffic(client) {
   console.log('Traffic is updating...');
-  // console.log(client);
-  // console.log(idsToUpdate);
   IntersectModel.find({ 'Int_no': idsToUpdate }, (err, res) => {
     if (err) return handleError(err);
 
@@ -184,7 +241,7 @@ function algoVraimentComplique(flowData) {
   let a = flowData.currentSpeed
   let b = flowData.freeFlowSpeed
   let ab = a / b;
-  return `${a} || ${b} || ${ab}`;
+  return ab;
 }
 
 const scale = (num, in_min, in_max, out_min, out_max) => {
