@@ -59,7 +59,8 @@ io.on("connection", client => {
   client.emit('connection', { data: '' });
 
   client.on('lightStates', data => {
-    console.log("GUESS WHO GOT SOME IDDSSSSSSSS");
+    console.log(`GUESS WHO GOT SOME IDDSSSSSSSS`);
+    console.log(data.data);
     idsToUpdate = data.data
   });
   //   IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
@@ -171,9 +172,9 @@ function calculateTraffic(client) {
       });
     }
 
+    client.emit('lightStates', { data: ligthDataSet });
   });
   console.log('Update Done');
-  client.emit('lightStates', { data: ligthDataSet });
   setTimeout(calculateTraffic, timeToRefresh, client);
 }
 
