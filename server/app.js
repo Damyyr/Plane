@@ -117,7 +117,7 @@ function calculateTraffic(){
 
       pairA = branches.filter(elem => elem.direction = 'N' || elem.direction == 'S');
       pairB = branches.filter(elem => elem.direction = 'E' || elem.direction == 'W');
-
+ 
       sumA = pairA[0].trafficInd + pairA[1].trafficInd;
       sumB = pairB[0].trafficInd + pairB[1].trafficInd;
 
