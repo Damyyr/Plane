@@ -58,6 +58,7 @@ io.on("connection", client => {
   console.log(`Sup bitch ${client.id}`);
 
   client.on('lightStates', data => {
+    console.log("GUESS WHO GOT SOME IDDSSSSSSSS");
     idsToUpdate = data.data
   });
   //   IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
