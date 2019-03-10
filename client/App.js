@@ -149,7 +149,7 @@ export default class App extends React.Component {
   getMarkersToGet = () => {
     let markersToGet = []
     for (let marker of this.state.markers.filter(elm => elm.title === "Intersection" && elm.type === "circle")) {
-      if (calcDist(marker, this.state.markers.filter(elm => elm.user === true)[0]) > 1000) {
+      if (calcDist(marker, this.state.markers.filter(elm => elm.user === true)[0]) > 600) {
         continue;
       }
       
@@ -192,7 +192,7 @@ export default class App extends React.Component {
         color: (i.Pieton) ? orange : green
       }
 
-      if (calcDist(m, this.state.markers.filter(elm => elm.user === true)[0]) > 1000) {
+      if (calcDist(m, this.state.markers.filter(elm => elm.user === true)[0]) > 600) {
         continue;
       }
 
@@ -288,8 +288,12 @@ export default class App extends React.Component {
         if (nextPositionCalc == 4) {
           pointInRoute = 0;
         }
-        
-        this.refs.toast.show(<Text style={styles.toastText}>UN TOUR!</Text>,DURATION.LENGTH_LONG);
+        let dg = Math.floor(Math.random() * 11) + 13;
+        this.refs.toast.show(<View>
+          <Text style={styles.toastText}>🌳 {(dg/840).toFixed(2)} kg de co2</Text>
+          <Text style={styles.toastText}>💲 0.01 dollars</Text>
+          <Text style={styles.toastText}>⏲️ {dg} secondes</Text>
+          </View>,DURATION.LENGTH_LONG);
         
         this.moveTheCarMarker(indexToDelete, newPositionCar, marks)
       }
