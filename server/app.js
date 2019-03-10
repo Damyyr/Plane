@@ -52,10 +52,10 @@ let IntersectModel = mongoose.model('IntersectModel', intersectSchema);
 function handleError(error) {
   console.log(error);
 }
-
-io.on("connection", client => {
-  setTimeout(calculateTraffic, timeToRefresh, client);
-  console.log(`Sup bitch ${client.id}`);
+trafficInd
+trafficInd
+trafficInd
+trafficInd
 
   client.on('lightStates', data => {
     idsToUpdate = data.data
@@ -90,19 +90,25 @@ io.on("connection", client => {
   // });
 
   client.on("feedback", data => {
-    IntersectModel.find({ 'Int_no': 661 }, 'lat long', function (err, mintersect) {
+    IntersectModel.find({ 'Int_no': data.data.id }, function (err, res) {
       if (err) return handleError(err);
 
-      let url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${mintersect[0].lat}%2C${mintersect[0].long}&unit=KMPH&key=${process.env.tomtomapi}`
+      console.log(res);
+      dir = res.branches.filter(elem => elem.direction == data.data.dir)[0];
+      dir.trafficInd += 50;
+      if(dir.trafficInd > 100) dir.trafficInd = 100;
+      res.save();
+
+      // let url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${mintersect[0].lat}%2C${mintersect[0].long}&unit=KMPH&key=${process.env.tomtomapi}`
       // let url = `https://traffic.api.here.com/traffic/6.1/flow.json?bbox=${mintersect[0].lat}%2C${mintersect[0].long}%3B${mintersect[0].lat}%2C${mintersect[0].long}&app_id=${process.env.hereappid}&app_code=${process.env.hereappcode}`
-      axios.get(url).then((resp) => {
-        console.log(resp.data.flowSegmentData);
-        if (resp.data.flowSegmentData) {
-          client.emit("feedback-answer", { data: `Retour de l'algo vraiment fou ${algoVraimentComplique(resp.data.flowSegmentData)} || ${mintersect[0].lat}, ${mintersect[0].long}` })
-        }
-      }).catch((err) => {
-        throw err
-      })
+      // axios.get(url).then((resp) => {
+      //   console.log(resp.data.flowSegmentData);
+      //   if (resp.data.flowSegmentData) {
+      //     client.emit("feedback-answer", { data: `Retour de l'algo vraiment fou ${algoVraimentComplique(resp.data.flowSegmentData)} || ${mintersect[0].lat}, ${mintersect[0].long}` })
+      //   }
+      // }).catch((err) => {
+      //   throw err
+      // })
     })
   })
 
