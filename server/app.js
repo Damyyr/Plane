@@ -250,11 +250,11 @@ function calculateTraffic(client) {
     }
     client.emit('lightStates', { data: ligthDataSet });
   });
-  if(ligthDataSet && afterConnection){
-    afterConnection = false
-    fetchTomTom();
-    console.log('retrieve TomTom for the first time')
-  }
+  // if(ligthDataSet && afterConnection){
+  //   afterConnection = false
+  //   fetchTomTom();
+  //   console.log('retrieve TomTom for the first time')
+  // }
   console.log('Update Done');
   setTimeout(calculateTraffic, timeToRefresh, client);
 }
