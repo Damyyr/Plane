@@ -1,4 +1,4 @@
-export default class Trajet {
+export default class Route {
     constructor(listPoints) {
         const originalPoints = [...listPoints];
         this.origins = originalPoints;
@@ -13,12 +13,12 @@ export default class Trajet {
     }
 
     getPosition(incrementsOfPath) {
-        const t = incrementsOfPath % 1;
+        const fractionOfReadTravelled = incrementsOfPath % 1;
         const increment = Math.floor(incrementsOfPath % 4);
         const pointRelativeToOrigin = this.slopes.map((slope) => {
             return {
-                latitude: slope.latitude * t,
-                longitude: slope.longitude * t,
+                latitude: slope.latitude * fractionOfReadTravelled,
+                longitude: slope.longitude * fractionOfReadTravelled,
             };
         });
         return {
@@ -27,26 +27,3 @@ export default class Trajet {
         }
     }
 }
-
-// const points = [
-//     {
-//         latitude: 45.533475,
-//         longitude: -73.570720,
-//     },
-//     {
-//         latitude: 45.534085,
-//         longitude: -73.570177,
-//     },
-//     {
-//         latitude: 45.532798,
-//         longitude: -73.567383,
-//     },
-//     {
-//         latitude: 45.532179,
-//         longitude: -73.567960,
-//     },
-// ];
-//
-// let trajet = new Trajet(points);
-// let point = trajet.getPosition(0.5); // Moitie du point 0 à 1
-// console.log(point);
