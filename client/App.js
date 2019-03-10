@@ -48,8 +48,8 @@ const demoRoutePoints = [
 ];
 
 let pointInRoute = 0;
-const speedOfRoute = 0.01*10;
-const carRefreshRate = 1000 / 1 * 1.5; // ms
+const speedOfRoute = 0.01*5;
+const carRefreshRate = 1000 / 5; // ms
 let demoRoute = new Route(demoRoutePoints);
 
 console.disableYellowBox = true;
@@ -70,8 +70,8 @@ export default class App extends React.Component {
       color: 'rgba(230,238,255,0.5)'
     }],
     tempMarkers: [],
-    socket: openSocket('https://planehack.herokuapp.com/')
-    // socket: openSocket('http://plane.mdamour.info')
+    // socket: openSocket('https://planehack.herokuapp.com/')
+    socket: openSocket('http://plane.mdamour.info')
   };
 
   componentWillMount = () => {
@@ -84,7 +84,7 @@ export default class App extends React.Component {
 
       // let markersToGet = this.getMarkersToGet()
       // console.log(markersToGet);
-      // console.log(resp.data);
+      console.log(resp.data);
 
       for (const light of resp.data) {
         markerLights.push(this.changeLightColor(light))
@@ -94,7 +94,15 @@ export default class App extends React.Component {
 
     this.createMarkers();
 
-    setInterval(this.serverCallLightState, 3000)
+    this.state.socket.on("connection", resp => {
+      this.serverCallLightState()
+    })
+
+    this.state.socket.on("clientSendLightStates", resp => {
+      this.serverCallLightState()
+    })
+
+    // setInterval(this.serverCallLightState, 3000)
   }
 
   changeLightColor = (light) => {
@@ -140,8 +148,8 @@ export default class App extends React.Component {
     let rc = TrafficD * 2.5
     let rg = 150 - (TrafficD * 1.5)
     let rb = (50 - TrafficD) < 0 ? 0 : 50 - TrafficD
-    return `rgba(1, 1, 1, 0.8)`
-    // return `rgba(${rc}, ${rg}, ${rb}, 0.8)`
+    // return `rgba(1, 1, 1, 0.8)`
+    return `rgba(${rc}, ${rg}, ${rb}, 0.8)`
   }
 
   getMarkersToGet = () => {
@@ -272,14 +280,6 @@ export default class App extends React.Component {
     this.setState({ markers: o})
   }
 
-  verifyMultiples = (val, i) => {
-    if (val >= 4 * i) {
-
-    } else {
-      return val - (4 * (i-1)) 
-    }
-  }
-
   moveCar = () => {
     let marks = this.state.markers;
     let petiteVoiture = marks.filter(elm => elm.user === true)[0];
@@ -296,9 +296,9 @@ export default class App extends React.Component {
     if (newPositionCalc != prevPositionCalc) {
       let direction = "" 
       if (newPositionCalc%2) {
-        direction = "N"
-      } else {
         direction = "W"
+      } else {
+        direction = "N"
       }
 
       if (this.state.markers.filter(elm => elm.id == demoRoutePoints[newPositionCalc].IntNo && 
@@ -306,17 +306,17 @@ export default class App extends React.Component {
         if (nextPositionCalc == 4) {
           pointInRoute = 0;
         }
-
+        
         this.refs.toast.show(<Text style={styles.toastText}>UN TOUR!</Text>,DURATION.LENGTH_LONG);
         
-        this.moveTheCarMarker(petiteVoiture, indexToDelete, newPositionCar, marks)
+        this.moveTheCarMarker(indexToDelete, newPositionCar, marks)
       }
     } else {
-      this.moveTheCarMarker(petiteVoiture, indexToDelete, newPositionCar, marks)
+      this.moveTheCarMarker(indexToDelete, newPositionCar, marks)
     }
   };
 
-  moveTheCarMarker = (petiteVoiture, indexToDelete, newPositionCar, marks) => {
+  moveTheCarMarker = (indexToDelete, newPositionCar, marks) => {
     let newCar = {
       type:"marker",
       key:0,
@@ -390,12 +390,12 @@ export default class App extends React.Component {
     } else {
       return (
         <View style={styles.container}>
-        <View style={styles.button}>
+        {/* <View style={styles.button}>
           <Button title="ALLO" onPress={this.onPressButton}/>
           <Button title="TOAST" onPress={()=>{
                     this.refs.toast.show(<Text style={styles.toastText}>hello world!</Text>,DURATION.LENGTH_LONG);
                 }}/>
-        </View>
+        </View> */}
         <View style={styles.toast}>
             <Toast
                 ref="toast"
