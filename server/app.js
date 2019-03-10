@@ -232,7 +232,7 @@ function calculateTraffic(client) {
         TrafficS: pairA.filter(elem => elem.direction == 'S')[0].trafficInd,
         TrafficE: pairB.filter(elem => elem.direction == 'E')[0].trafficInd,
         TrafficW: pairB.filter(elem => elem.direction == 'W')[0].trafficInd,
-        lon: intersection.lon,
+        lon: intersection.long,
         lat: intersection.lat
       });
     }
