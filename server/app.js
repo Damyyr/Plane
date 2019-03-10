@@ -124,7 +124,7 @@ io.on("connection", client => {
 
       console.log(res[0]);
       dir = res[0].branches.filter(elem => elem.direction == data.data.dir)[0];
-      dir.trafficInd += 50;
+      if(dir.trafficInd) dir.trafficInd += 50;
       if (dir.trafficInd > 100) dir.trafficInd = 100;
       res[0].save();
 
@@ -230,7 +230,7 @@ function calculateTraffic(client) {
         TrafficW: pairB.filter(elem => elem.direction == 'W')[0].trafficInd
       });
     }
-
+    if(ligthDataSet) fetchTomTom();
     client.emit('lightStates', { data: ligthDataSet });
   });
   console.log('Update Done');
