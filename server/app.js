@@ -54,8 +54,11 @@ let intersectSchema = mongoose.Schema({
 
 let IntersectModel = mongoose.model('IntersectModel', intersectSchema);
 
+last = true;
+
 function setAllTraffic(isFull){
-  let percent = isFull ? 70 : 0;
+  let percent = !last ? 70 : 0;
+  last = !last
   for (let intersection of ligthDataSet) {
     IntersectModel.find({ 'Int_no': intersection.Int_no }, (err, res) => {
       let tomtomObject = tomtomCall(intersection.lat, intersection.long);
@@ -71,6 +74,8 @@ function setAllTraffic(isFull){
       // res[0].save().then((item) => { console.log(item.Int_no) });
     });
   }
+
+  setTimeout(setAllTraffic, timerFakeTraffic, true);
 }
 
 function handleError(error) {
