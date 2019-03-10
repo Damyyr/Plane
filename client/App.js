@@ -20,31 +20,35 @@ const green = "rgba(0, 153, 51, 0.8)";
 const red = "rgba(255, 51, 0, 0.8)";
 const orange = "rgba(255, 204, 0, 0.8)";
 
-const startLat = 45.534964
-const startLong = -73.559118
+const startLat = 45.533475
+const startLong = -73.570720
 
 const demoRoutePoints = [
   {
     latitude: 45.533475,
     longitude: -73.570720,
+    IntNo: 678,
   },
   {
     latitude: 45.534085,
     longitude: -73.570177,
+    IntNo: 705,
   },
   {
     latitude: 45.532798,
     longitude: -73.567383,
+    IntNo: 700,
   },
   {
     latitude: 45.532179,
     longitude: -73.567960,
+    IntNo: 681,
   },
 ];
 
 let pointInRoute = 0;
-const speedOfRoute = 0.01;
-const carRefreshRate = 1000 / 60; // ms
+const speedOfRoute = 0.01*10;
+const carRefreshRate = 1000 / 1 * 1.5; // ms
 let demoRoute = new Route(demoRoutePoints);
 
 console.disableYellowBox = true;
@@ -115,9 +119,28 @@ export default class App extends React.Component {
         //   markerLight.color = green;
         // }
       }
+      if (markerLight.id == light.Int_no && markerLight.type === "polyline") {
+        if (markerLight.dir === "N") {
+          markerLight.color = this.colorBranches(light.TrafficN)
+        } else if (markerLight.dir === "S") {
+          markerLight.color = this.colorBranches(light.TrafficS)
+        } else if (markerLight.dir === "E") {
+          markerLight.color = this.colorBranches(light.TrafficE)
+        } else {
+          markerLight.color = this.colorBranches(light.TrafficW)
+        }
+      }
     }
 
     return markerLights;
+  }
+
+  colorBranches = (TrafficD) => {
+    let rc = TrafficD * 2.5
+    let rg = 150 - (TrafficD * 1.5)
+    let rb = (50 - TrafficD) < 0 ? 0 : 50 - TrafficD
+    return `rgba(1, 1, 1, 0.8)`
+    // return `rgba(${rc}, ${rg}, ${rb}, 0.8)`
   }
 
   getMarkersToGet = () => {
@@ -204,7 +227,6 @@ export default class App extends React.Component {
       longitude: i.Long+long},
       image:imgLight,
       radius: 4,
-      dir: dir,
       color: (dir === "N" || dir === "S") ? green : red
     }
     let t = this.state.markers;
@@ -229,6 +251,14 @@ export default class App extends React.Component {
     this.setState({ markers: o})
   }
 
+  verifyMultiples = (val, i) => {
+    if (val >= 4 * i) {
+
+    } else {
+      return val - (4 * (i-1)) 
+    }
+  }
+
   moveCar = () => {
     let marks = this.state.markers;
     let petiteVoiture = marks.filter(elm => elm.user === true)[0];
@@ -238,7 +268,34 @@ export default class App extends React.Component {
     });
 
     let newPositionCar = demoRoute.getPosition(pointInRoute);
+    let prevPositionCalc = Math.floor(pointInRoute-speedOfRoute % 4);
+    let newPositionCalc = Math.floor(pointInRoute % 4);
+    let nextPositionCalc = Math.floor(pointInRoute+speedOfRoute % 4);
 
+    if (newPositionCalc != prevPositionCalc) {
+      let direction = "" 
+      if (newPositionCalc%2) {
+        direction = "N"
+      } else {
+        direction = "W"
+      }
+
+      if (this.state.markers.filter(elm => elm.id == demoRoutePoints[newPositionCalc].IntNo && 
+        elm.type === "circle" && elm.title !== "Intersection" && elm.dir === direction)[0].color === green ) {
+        if (nextPositionCalc == 4) {
+          pointInRoute = 0;
+        }
+
+        this.refs.toast.show(<Text style={styles.toastText}>UN TOUR!</Text>,DURATION.LENGTH_LONG);
+        
+        this.moveTheCarMarker(petiteVoiture, indexToDelete, newPositionCar, marks)
+      }
+    } else {
+      this.moveTheCarMarker(petiteVoiture, indexToDelete, newPositionCar, marks)
+    }
+  };
+
+  moveTheCarMarker = (petiteVoiture, indexToDelete, newPositionCar, marks) => {
     let newCar = {
       type:"marker",
       key:0,
@@ -257,8 +314,7 @@ export default class App extends React.Component {
     marks.splice(indexToDelete, 1)
     marks.push(newCar);
     this.setState({ markers: marks });
-
-  };
+  }  
 
   componentDidMount = () => {
      setInterval(this.moveCar, carRefreshRate);
