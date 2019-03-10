@@ -137,7 +137,7 @@ function calculateTraffic() {
     let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
     let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
     console.log(dirA);
-    console.log(dirA);
+    console.log(dirB);
     
     dirA.actualTimer = 2;
     dirB.actualTimer = 2;
