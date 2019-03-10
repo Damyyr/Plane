@@ -156,10 +156,10 @@ function calculateTraffic(client) {
     ligthDataSet.push({
       Int_no: intersection.Int_no,
       greenFor: greenFor,
-      TrafficN: pairA.filter(elem => elem.direction == 'N')[0],
-      TrafficS: pairA.filter(elem => elem.direction == 'S')[0],
-      TrafficE: pairB.filter(elem => elem.direction == 'E')[0],
-      TrafficW: pairB.filter(elem => elem.direction == 'W')[0]
+      TrafficN: pairA.filter(elem => elem.direction == 'N')[0].trafficInd,
+      TrafficS: pairA.filter(elem => elem.direction == 'S')[0].trafficInd,
+      TrafficE: pairB.filter(elem => elem.direction == 'E')[0].trafficInd,
+      TrafficW: pairB.filter(elem => elem.direction == 'W')[0].trafficInd
     });
   }
   
