@@ -154,13 +154,15 @@ io.on("connection", client => {
       if (err) return handleError(err);
       if (!res[0]) return;
 
-      console.log(res[0]);
+      try {
+        console.log(res[0]);
       dir = res[0].branches.filter(elem => elem.direction == data.data.dir)[0];
       if (dir.trafficInd) dir.trafficInd += 50;
       if (dir.trafficInd > 100) dir.trafficInd = 100;
       res[0].save();
-
-
+      } catch (error) {
+        console.log(error);
+      }
     })
   })
 
