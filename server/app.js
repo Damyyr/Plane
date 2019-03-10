@@ -93,12 +93,12 @@ io.on("connection", client => {
     IntersectModel.find({ 'Int_no': data.data.id }, function (err, res) {
       if (err) return handleError(err);
 
-      console.log(res);
-      dir = res.branches.filter(elem => elem.direction == data.data.dir)[0];
+      console.log(res[0]);
+      dir = res[0].branches.filter(elem => elem.direction == data.data.dir)[0];
       dir.trafficInd += 50;
       if(dir.trafficInd > 100) dir.trafficInd = 100;
-      res.save();
-      
+      res[0].save();
+
       // let url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${mintersect[0].lat}%2C${mintersect[0].long}&unit=KMPH&key=${process.env.tomtomapi}`
       // let url = `https://traffic.api.here.com/traffic/6.1/flow.json?bbox=${mintersect[0].lat}%2C${mintersect[0].long}%3B${mintersect[0].lat}%2C${mintersect[0].long}&app_id=${process.env.hereappid}&app_code=${process.env.hereappcode}`
       // axios.get(url).then((resp) => {
