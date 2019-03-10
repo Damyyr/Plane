@@ -13,7 +13,7 @@ ligthDataSet = []
 
 const timeToRefresh = 1000;
 
-setTimeout(imNotJammed, timeToRefresh);
+// setTimeout(imNotJammed, timeToRefresh);
 
 mongoose.connect(`mongodb://${process.env.dbuser}:${process.env.dbpassword}@ds163822.mlab.com:63822/plane`, option).then(
   () => {
@@ -61,7 +61,7 @@ io.on("connection", client => {
     IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
       if (err) return handleError(err);
 
-      idsToUpdate = [678, 661]//data.data
+      idsToUpdate = data.data
       // let response = []
       // for (const intersection of res) {
       //   let lastChange = intersection.lastChange;
@@ -132,11 +132,10 @@ function calculateTraffic() {
         let sumA = pairA[0].trafficInd + pairA[1].trafficInd;
         let sumB = pairB[0].trafficInd + pairB[1].trafficInd;
 
-        // add this scaled ratio to each direction actualTimer
-        if(sumB === 0) sumB = 1;
-        let ratio = ((sumA / sumB) * 100);
-        let scaledRatio = Math.round(scale(ratio, 0, 200, modifierBounds[0], modifierBounds[1]));
+        let modA = Math.round(scale(sumA, 0, 200, modifierBounds[0], modifierBounds[1]));
+        let modB = Math.round(scale(sumB, 0, 200, modifierBounds[0], modifierBounds[1]));
 
+        // add this scaled ratio to each direction actualTimer
         let lastChange = intersection.lastChange;
         let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
         let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
@@ -148,7 +147,8 @@ function calculateTraffic() {
         //logs --------------------------------
         // console.log(sumA);
         // console.log(sumB);
-        // console.log(ratio);
+        // console.log(modA);
+        // console.log(modB);
         // console.log(scaledRatio);
         // console.log(aToUpdate);
         // console.log(bToUpdate);
@@ -159,8 +159,8 @@ function calculateTraffic() {
         if ((dirA.actualTimer != aToUpdate) || (dirB.actualTimer != bToUpdate)) {
           needSave = true;
           intersection.lastChange = new Date;
-          dirA.actualTimer = dirA.defaultTimer + scaledRatio;
-          dirB.actualTimer = dirB.defaultTimer + scaledRatio;
+          dirA.actualTimer = dirA.defaultTimer + modA;
+          dirB.actualTimer = dirB.defaultTimer + modB;
         }
 
         let totalCycle = dirA.actualTimer + dirB.actualTimer;
