@@ -126,12 +126,12 @@ io.on("connection", client => {
       if(dir.trafficInd) dir.trafficInd += 50;
       if (dir.trafficInd > 100) dir.trafficInd = 100;
       res[0].save();
-
-
-    })
-  })
-
-  client.on("disconnect", () => {
+trafficInd
+trafficInd
+trafficInd
+trafficInd
+trafficInd
+trafficInd
     console.log(`bye ${client.id}`)
   })
 })
@@ -173,8 +173,8 @@ function tomtomCall(lat, long) {
 
   url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat}%2C${long-0.0003}&unit=KMPH&key=${process.env.tomtomapi}`
   axios.get(url).then((resp) => {
-    if (resp.data.flowSegmentData) {
-      tomtom.TrafficS = algoVraimentComplique(resp.data.flowSegmentData)
+    if (resp.data.flowSegmentData) {trafficInd
+      tomtom.TrafficS = algoVraimenttrafficIndsp.data.flowSegmentData)
     }
   }).catch((err) => {
     throw err
@@ -229,6 +229,8 @@ function calculateTraffic(client) {
         TrafficW: pairB.filter(elem => elem.direction == 'W')[0].trafficInd
       });
     }
+    console.log(ligthDataSet);
+    
     if(ligthDataSet) fetchTomTom();
     client.emit('lightStates', { data: ligthDataSet });
   });
