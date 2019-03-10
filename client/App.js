@@ -10,8 +10,6 @@ import calcDist from './components/utils'
 import Route from './route'
 import imgPedestrian from './assets/images/pedestrian-walking.png';
 import imgBlind from './assets/images/hide.png';
-import calcDist from './components/utils';
-
 import intersect from './assets/data/intersect.json';
 
 import openSocket from 'socket.io-client';
@@ -147,6 +145,14 @@ export default class App extends React.Component {
         continue;
       }
       
+      let theImage = undefined;
+      
+      if (i.Malvoyant) {
+        theImage = imgBlind;
+      } else if (i.Pieton) {
+        theImage = imgPedestrian;
+      }
+
       let m = {
         type:"marker",
         key: j,
@@ -156,7 +162,7 @@ export default class App extends React.Component {
         id:i.IntNo,
         coordinate:{latitude: i.Lat,
         longitude: i.Long},
-        image:(i.Pieton) ? imgPedestrian : undefined,
+        image: theImage,
         radius: 7,
       }
 
@@ -289,12 +295,14 @@ export default class App extends React.Component {
         strokeColor = { '#1a66ff' }
         fillColor = { marker.color }
       />
-    } else if (marker.type === "marker" && marker.image !== undefined) {
-      return <MapView.Marker 
-        key={marker.key}
-        coordinate={marker.coordinate}
-        image = {marker.image}
-      />
+    } else if (marker.type === "marker") {
+      if (marker.image !== undefined) {
+        return <MapView.Marker 
+          key={marker.key}
+          coordinate={marker.coordinate}
+          image = {marker.image}
+        />
+      }
     } else {
       return <MapView.Polyline 
         key={marker.key}
