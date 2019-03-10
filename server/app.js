@@ -9,6 +9,8 @@ const PORT = process.env.PORT || 8888
 
 afterConnection = false
 
+const timerFakeTraffic = 10000;
+
 const modifierBounds = [-3, 3]
 idsToUpdate = []
 ligthDataSet = []
@@ -52,6 +54,25 @@ let intersectSchema = mongoose.Schema({
 
 let IntersectModel = mongoose.model('IntersectModel', intersectSchema);
 
+function setAllTraffic(isFull){
+  let percent = isFull ? 70 : 0;
+  for (let intersection of ligthDataSet) {
+    IntersectModel.find({ 'Int_no': intersection.Int_no }, (err, res) => {
+      let tomtomObject = tomtomCall(intersection.lat, intersection.long);
+      
+      let branches = res[0].branches;
+      branches.filter(elem => elem.direction == 'N')[0].trafficInd = percent//transfromTomTom(tomtomObject.TrafficN)
+      branches.filter(elem => elem.direction == 'S')[0].trafficInd = percent//transfromTomTom(tomtomObject.TrafficS)
+      branches.filter(elem => elem.direction == 'E')[0].trafficInd = percent//transfromTomTom(tomtomObject.TrafficE)
+      branches.filter(elem => elem.direction == 'W')[0].trafficInd = percent//transfromTomTom(tomtomObject.TrafficW)
+
+      console.log(res[0]);
+
+      res[0].save().then((item) => { console.log(item.Int_no) });
+    });
+  }
+}
+
 function handleError(error) {
   console.log(error);
 }
@@ -87,6 +108,8 @@ function transfromTomTom(value) {
 io.on("connection", client => {
   setTimeout(calculateTraffic, timeToRefresh, client);
   // setTimeout(fetchTomTom, timerTomTom);
+  setAllTraffic(false);
+  setTimeout(setAllTraffic, timerFakeTraffic, true);
 
   console.log(`Sup bitch ${client.id}`);
   client.emit('connection', { data: '' });
