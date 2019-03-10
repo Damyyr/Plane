@@ -163,7 +163,8 @@ function calculateTraffic() {
           intersection.lastChange = new Date;
           dirA.actualTimer = aToUpdate;
           dirB.actualTimer = bToUpdate;
-          if (needSave) intersection.save().then(() =>{ console.log('save'); });
+          intersection.save().then(() =>{ console.log('save'); });
+          console.log(intersection);
         }
 
         let totalCycle = dirA.actualTimer + dirB.actualTimer;
