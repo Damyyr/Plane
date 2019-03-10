@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, View, Dimensions, ScrollView,TouchableHighlight, Button } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, ScrollView,TouchableHighlight, TouchableOpacity, Button } from 'react-native';
 import Toast, {DURATION} from 'react-native-easy-toast'
 import { AppLoading, Asset, Font, Icon } from 'expo';
+import { MaterialIcons } from '@expo/vector-icons'
 import { MapView } from "expo";
 import imgCar from './assets/images/car.png';
 import imgLight from './assets/images/light.png';
@@ -293,6 +294,11 @@ export default class App extends React.Component {
             </MapView>
           </View>
         </ScrollView>
+          <TouchableOpacity onPress={() => alert('FAB clicked!')} style={styles.fab}>
+            <Text style={styles.fabIcon}>
+              <MaterialIcons name="traffic" style={styles.fabIcon}/>
+            </Text>
+          </TouchableOpacity>
       </View>
       );
     }
@@ -348,5 +354,22 @@ const styles = StyleSheet.create({
   },
   toastText: {
     textAlign: 'center'
-  }
+  },
+  fab: {
+    position: 'absolute',
+    width: 65,
+    height: 65,
+    alignItems: 'center',
+    justifyContent: 'center',
+    right: 20,
+    bottom: 20,
+    backgroundColor: '#f43922',
+    borderRadius: 30,
+    elevation: 8
+  },
+  fabIcon: {
+    lineHeight: 42,
+    fontSize: 40,
+    color: 'white'
+  },
 });
