@@ -7,8 +7,14 @@ const axios = require('axios')
 const hostname = "localhost"
 const PORT = process.env.PORT || 8888
 
+const modifierBounds = [ -3, 3 ]
+idsToUpdate = []
+
 mongoose.connect(`mongodb://${process.env.dbuser}:${process.env.dbpassword}@ds163822.mlab.com:63822/plane`, option).then(
-  () => { console.log('Successfully connected'); },
+  () => {
+     console.log('Successfully connected'); 
+     setTimeout(calculateTraffic, 3000);
+    },
   err => { throw err }
 );
 
@@ -44,13 +50,13 @@ function handleError(error) {
 }
 
 io.on("connection", client => {
-
   console.log(`Sup bitch ${client.id}`);
 
   client.on('lightStates', data => {
     IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
       if (err) return handleError(err);
 
+      idsToUpdate = data.data
       let response = []
       for (const intersection of res) {
         let lastChange = intersection.lastChange;
@@ -68,6 +74,7 @@ io.on("connection", client => {
         });
       }
 
+      teeest();
       client.emit('lightStates', { data: response })
     });
   });
@@ -94,11 +101,20 @@ io.on("connection", client => {
   })
 })
 
+function teeest(){
+  console.log('idsToUpdate');
+  console.log(idsToUpdate);
+}
+
 function algoVraimentComplique(flowData) {
   let a = flowData.currentSpeed
   let b = flowData.freeFlowSpeed
   let ab = a / b;
   return `${a} || ${b} || ${ab}`;
+}
+
+const scale = (num, in_min, in_max, out_min, out_max) => {
+  return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 server.listen(PORT, hostname, () => {
