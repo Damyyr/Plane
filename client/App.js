@@ -19,11 +19,7 @@ const green = "rgba(0, 153, 51, 0.8)";
 const red = "rgba(255, 51, 0, 0.8)";
 const orange = "rgba(255, 204, 0, 0.8)";
 
-console.ignoredYellowBox = ['Remote debugger'];
-import { YellowBox } from 'react-native';
-YellowBox.ignoreWarnings([
-    'Unrecognized WebSocket connection option(s) `agent`, `perMessageDeflate`, `pfx`, `key`, `passphrase`, `cert`, `ca`, `ciphers`, `rejectUnauthorized`. Did you mean to put these under `headers`?'
-]);
+console.disableYellowBox = true;
 
 export default class App extends React.Component {
   state = {
@@ -203,6 +199,38 @@ export default class App extends React.Component {
       }
     }
     this.setState({ markers: o})
+  }
+
+  moveCar = () => {
+    let marks = this.state.markers;
+    let petiteVoiture = marks.filter(elm => elm.user === true)[0];
+    
+    let indexToDelete = marks.findIndex((elm) => {
+      return elm.user;
+    });
+
+    let newCar = {
+      type:"marker",
+      key:0,
+      user: true,
+      radius:15,
+      // coordinate: {latitude: 46.816592, longitude: -71.200432},
+      coordinate: {latitude: petiteVoiture.coordinate.latitude + 0.0001
+                , longitude: -73.559118},
+      title:"title",
+      description:"description",
+      image:imgCar,
+      color: 'rgba(230,238,255,0.5)'
+    };
+    
+    marks.splice(indexToDelete, 1)
+    marks.push(newCar);
+    this.setState({ markers: marks });
+
+  };
+
+  componentDidMount = () => {
+     setInterval(this.moveCar, 1000);
   }
 
   renderElementsMap = (marker) => {
