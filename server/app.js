@@ -47,10 +47,10 @@ io.on("connection", client => {
   console.log(`Sup bitch ${client.id}`);
   
   client.on('lightStates', data => {
-    let response = []
-    IntersectModel.find({'Int_no': data.data}, function (err, res) {
+    IntersectModel.find({'Int_no': data.data}, (err, res) => {
       if (err) return handleError(err);
 
+      let response = []
       for (const intersection of res) {
         let lastChange = intersection.lastChange;
         let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
@@ -67,10 +67,8 @@ io.on("connection", client => {
         });
       }
 
+      client.emit('lightStates', { data: response })
     });
-    
-    console.log(response);
-    client.emit('lightStates', { data: response })
   });
 
   client.on("feedback", data => { 
