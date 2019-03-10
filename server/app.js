@@ -58,6 +58,7 @@ io.on("connection", client => {
   console.log(`Sup bitch ${client.id}`);
 
   client.on('lightStates', data => {
+    console.log(data.data);
     // IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
     // if (err) return handleError(err);
 
@@ -124,7 +125,7 @@ function calculateTraffic() {
   if (err) return handleError(err);
 
   ligthDataSet = []
-  for (const intersection of ligthDataSet) {
+  for (const intersection of res) {
     let branches = intersection.branches;
 
     let pairA = branches.filter(elem => elem.direction = 'N' || elem.direction == 'S');
