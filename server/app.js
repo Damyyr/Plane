@@ -61,7 +61,7 @@ io.on("connection", client => {
   client.on('getId', data => {
     console.log('dataaaa');
     console.log(data)
-    idsToUpdate = data.data
+    // idsToUpdate = data.data
   });
 
   client.on('lightStates', data => {
