@@ -11,7 +11,7 @@ const modifierBounds = [-3, 3]
 idsToUpdate = []
 ligthDataSet = []
 
-const timeToRefresh = 1000;
+const timeToRefresh = 4000;
 
 // setTimeout(imNotJammed, timeToRefresh);
 
@@ -140,12 +140,12 @@ function calculateTraffic(client) {
     let dirA = intersection.directions.filter(elem => elem.direction == 'A')[0];
     let dirB = intersection.directions.filter(elem => elem.direction == 'B')[0];
     
-    dirA.actualTimer = 2;
-    dirB.actualTimer = 2;
+    dirA.actualTimer = 10;
+    dirB.actualTimer = 10;
 
     let totalCycle = dirA.actualTimer + dirB.actualTimer;
     let direction = secondsSinceLastChange % totalCycle;
-    let greenFor = direction <= dirA.actualTimer ? 'A' : 'B';
+    let greenFor = direction < dirA.actualTimer ? 'A' : 'B';
 
     ligthDataSet.push({
       Int_no: intersection.Int_no,
