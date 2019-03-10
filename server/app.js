@@ -60,8 +60,6 @@ function fetchTomTom() {
   if (!ligthDataSet) return;
 
   for (let intersection of ligthDataSet) {
-    console.log(intersection);
-
     IntersectModel.find({ 'Int_no': intersection.Int_no }, (err, res) => {
       let tomtomObject = tomtomCall(intersection.lat, intersection.long);
 
@@ -191,6 +189,8 @@ function tomtomCall(lat, long) {
   }).catch((err) => {
     throw err
   })
+
+  console.log(tomtom);
 
   // client.emit("feedback-answer", { data: `Retour de l'algo vraiment fou ${algoVraimentComplique(resp.data.flowSegmentData)} || ${lat}, ${long}` })
   return tomtom
