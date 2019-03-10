@@ -53,25 +53,15 @@ function handleError(error) {
   console.log(error);
 }
 
-function loadLights(ids) {
-  IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
-    if (err) return handleError(err);
-    idsToUpdate = data.data;
-    ligthDataSet = res;
-  });
-}
-
 io.on("connection", client => {
-  // setTimeout(calculateTraffic, timeToRefresh);
+  setTimeout(calculateTraffic, timeToRefresh);
   console.log(`Sup bitch ${client.id}`);
 
   client.on('lightStates', data => {
-    loadLights(data.data);
-    client.emit('lightStates', { data: ligthDataSet })
     // IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
     // if (err) return handleError(err);
 
-    // idsToUpdate = data.data
+    idsToUpdate = data.data
     // client.emit('lightStates', { data: res })
 
     // let response = []
@@ -92,7 +82,7 @@ io.on("connection", client => {
     // }
 
     //teeest();
-    // client.emit('lightStates', { data: ligthDataSet })
+    client.emit('lightStates', { data: ligthDataSet })
     // });
   });
 
@@ -130,11 +120,10 @@ function imNotJammed() {
 
 function calculateTraffic() {
   console.log('Traffic is updating...');
-  // IntersectModel.find({ 'Int_no': idsToUpdate }, (err, res) => {
-  // if (err) return handleError(err);
+  IntersectModel.find({ 'Int_no': idsToUpdate }, (err, res) => {
+  if (err) return handleError(err);
 
-  let array = [];
-  // ligthDataSet = []
+  ligthDataSet = []
   for (const intersection of ligthDataSet) {
     let branches = intersection.branches;
 
@@ -151,15 +140,14 @@ function calculateTraffic() {
     let direction = secondsSinceLastChange % totalCycle;
     let greenFor = direction <= dirA.actualTimer ? 'A' : 'B';
 
-    array.push({
+    ligthDataSet.push({
       Int_no: intersection.Int_no,
       greenFor: greenFor
     });
   }
   // intersection.save().then(() =>{ console.log('save'); });
-  // });
+  });
   console.log('Update Done');
-  ligthDataSet = array;
   setTimeout(calculateTraffic, timeToRefresh);
 }
 
