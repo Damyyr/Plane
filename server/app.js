@@ -66,10 +66,10 @@ function fetchTomTom() {
       console.log(res[0]);
       
       let branches = res[0].branches;
-      branches.filter(elem => elem.direction == 'N')[0].trafficInd = transfromTomTom(tomtomObject.TrafficN)
-      branches.filter(elem => elem.direction == 'S')[0].trafficInd = transfromTomTom(tomtomObject.TrafficS)
-      branches.filter(elem => elem.direction == 'E')[0].trafficInd = transfromTomTom(tomtomObject.TrafficE)
-      branches.filter(elem => elem.direction == 'W')[0].trafficInd = transfromTomTom(tomtomObject.TrafficW)
+      branches.filter(elem => elem.direction == 'N')[0].trafficInd = 0//transfromTomTom(tomtomObject.TrafficN)
+      branches.filter(elem => elem.direction == 'S')[0].trafficInd = 0//transfromTomTom(tomtomObject.TrafficS)
+      branches.filter(elem => elem.direction == 'E')[0].trafficInd = 0//transfromTomTom(tomtomObject.TrafficE)
+      branches.filter(elem => elem.direction == 'W')[0].trafficInd = 0//transfromTomTom(tomtomObject.TrafficW)
 
       console.log(res[0]);
 
@@ -86,7 +86,7 @@ function transfromTomTom(value) {
 
 io.on("connection", client => {
   setTimeout(calculateTraffic, timeToRefresh, client);
-  setTimeout(fetchTomTom, timerTomTom);
+  // setTimeout(fetchTomTom, timerTomTom);
 
   console.log(`Sup bitch ${client.id}`);
   client.emit('connection', { data: '' });
@@ -94,7 +94,7 @@ io.on("connection", client => {
   client.on('lightStates', data => {
     console.log(`GUESS WHO GOT SOME IDDSSSSSSSS`);
     console.log(data);
-    idsToUpdate = data.data
+    idsToUpdate = [678, 661]//data.data
     afterConnection = (idsToUpdate) ? true : false;
   });
   //   IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
@@ -249,8 +249,8 @@ function calculateTraffic(client) {
   });
   if(ligthDataSet && afterConnection){
     afterConnection = false
-    fetchTomTom();
-    console.log('retrieve TomTom for the first time')
+    // fetchTomTom();
+    // console.log('retrieve TomTom for the first time')
   }
   console.log('Update Done');
   setTimeout(calculateTraffic, timeToRefresh, client);
