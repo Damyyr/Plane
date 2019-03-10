@@ -54,36 +54,37 @@ function handleError(error) {
 }
 
 io.on("connection", client => {
-  setTimeout(calculateTraffic, timeToRefresh);
+  // setTimeout(calculateTraffic, timeToRefresh);
   console.log(`Sup bitch ${client.id}`);
 
   client.on('lightStates', data => {
-    // IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
-    // if (err) return handleError(err);
+    IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
+    if (err) return handleError(err);
 
     idsToUpdate = [678,661] //data.data
     // client.emit('lightStates', { data: res })
 
-    // let response = []
-    // for (const intersection of res) {
-    //   let lastChange = intersection.lastChange;
-    //   let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
-    //   let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
-    //   let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
+    let response = []
+    for (const intersection of res) {
+      let lastChange = intersection.lastChange;
+      let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
+      let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
+      let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
 
-    //   let totalCycle = dirA.defaultTimer + dirB.defaultTimer;
-    //   let direction = secondsSinceLastChange % totalCycle;
-    //   let greenFor = direction <= dirA.defaultTimer ? 'A' : 'B';
+      let totalCycle = dirA.defaultTimer + dirB.defaultTimer;
+      let direction = secondsSinceLastChange % totalCycle;
+      let greenFor = direction <= dirA.defaultTimer ? 'A' : 'B';
 
-    //   response.push({
-    //     Int_no: intersection.Int_no,
-    //     greenFor: greenFor
-    //   });
-    // }
+      response.push({
+        Int_no: intersection.Int_no,
+        greenFor: greenFor
+      });
+    }
 
     //teeest();
-    client.emit('lightStates', { data: ligthDataSet })
-    // });
+    client.emit('lightStates', { data: intersection })
+    // client.emit('lightStates', { data: ligthDataSet })
+    });
   });
 
   client.on("feedback", data => {
