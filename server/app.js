@@ -70,18 +70,11 @@ io.on("connection", client => {
   console.log(`Sup bitch ${client.id}`);
 
   client.on('lightStates', data => {
-    if (ligthDataSet === []) {
-      loadLights(data.data);
-      setTimeout(calculateTraffic, timeToRefresh);
-    }
+    IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
+    if (err) return handleError(err);
 
-    client.emit('lightStates', { data: ligthDataSet })
-
-
-    // IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
-    // if (err) return handleError(err);
-
-    // idsToUpdate = data.data
+    idsToUpdate = data.data
+    client.emit('lightStates', { data: res })
 
     // let response = []
     // for (const intersection of res) {
@@ -102,7 +95,7 @@ io.on("connection", client => {
 
     //teeest();
     // client.emit('lightStates', { data: ligthDataSet })
-    // });
+    });
   });
 
   client.on("feedback", data => {
