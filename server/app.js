@@ -58,6 +58,12 @@ io.on("connection", client => {
   console.log(`Sup bitch ${client.id}`);
   client.emit('connection', { data: '' });
 
+  client.on('getId', data => {
+    console.log('dataaaa');
+    console.log(data)
+    idsToUpdate = data.data
+  });
+
   client.on('lightStates', data => {
     console.log(`GUESS WHO GOT SOME IDDSSSSSSSS`);
     console.log(data);
