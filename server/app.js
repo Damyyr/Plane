@@ -131,8 +131,14 @@ function calculateTraffic(client) {
   for (const intersection of res) {
     let branches = intersection.branches;
 
-    let pairA = branches.filter(elem => elem.direction = 'N' || elem.direction == 'S');
-    let pairB = branches.filter(elem => elem.direction = 'E' || elem.direction == 'W');
+    let pairA = branches.filter(elem => elem.direction == 'N' || elem.direction == 'S');
+    let pairB = branches.filter(elem => elem.direction == 'E' || elem.direction == 'W');
+
+    let sumA = pairA[0].trafficInd + pairA[1].trafficInd
+    let sumB = pairB[0].trafficInd + pairB[1].trafficInd
+
+    let modA = scale(sumA, 0, 200, modifierBounds[0], modifierBounds[1])
+    let modB = scale(sumB, 0, 200, modifierBounds[0], modifierBounds[1])
 
     // add this scaled ratio to each direction actualTimer
     let lastChange = intersection.lastChange;
@@ -140,8 +146,8 @@ function calculateTraffic(client) {
     let dirA = intersection.directions.filter(elem => elem.direction == 'A')[0];
     let dirB = intersection.directions.filter(elem => elem.direction == 'B')[0];
     
-    dirA.actualTimer = 30;
-    dirB.actualTimer = 30;
+    dirA.actualTimer = 10;
+    dirB.actualTimer = 10;
 
     let totalCycle = dirA.actualTimer + dirB.actualTimer;
     let direction = secondsSinceLastChange % totalCycle;
@@ -149,7 +155,11 @@ function calculateTraffic(client) {
 
     ligthDataSet.push({
       Int_no: intersection.Int_no,
-      greenFor: greenFor
+      greenFor: greenFor,
+      TrafficN: pairA.filter(elem => elem.direction == 'N')[0],
+      TrafficS: pairA.filter(elem => elem.direction == 'S')[0],
+      TrafficE: pairB.filter(elem => elem.direction == 'E')[0],
+      TrafficW: pairB.filter(elem => elem.direction == 'W')[0]
     });
   }
   
