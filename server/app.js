@@ -152,14 +152,18 @@ function calculateTraffic() {
         // console.log(aToUpdate);
         // console.log(bToUpdate);
         
+        console.log(dirA.actualTimer);
+        console.log(dirB.actualTimer);
+        console.log(aToUpdate);
+        console.log(bToUpdate);
+    
         //logs --------------------------------
 
-        let needSave = false;
         if ((dirA.actualTimer != aToUpdate) || (dirB.actualTimer != bToUpdate)) {
-          needSave = true;
           intersection.lastChange = new Date;
           dirA.actualTimer = aToUpdate;
           dirB.actualTimer = bToUpdate;
+          intersection.save()
         }
 
         let totalCycle = dirA.actualTimer + dirB.actualTimer;
@@ -174,7 +178,7 @@ function calculateTraffic() {
         
         //logs --------------------------------
 
-        if (needSave) intersection.save().then(() =>{ console.log('save'); });
+        // if (needSave) .then(() =>{ console.log('save'); });
 
         ligthDataSet.push({
           Int_no: intersection.Int_no,
