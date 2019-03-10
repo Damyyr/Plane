@@ -231,7 +231,9 @@ function calculateTraffic(client) {
         TrafficN: pairA.filter(elem => elem.direction == 'N')[0].trafficInd,
         TrafficS: pairA.filter(elem => elem.direction == 'S')[0].trafficInd,
         TrafficE: pairB.filter(elem => elem.direction == 'E')[0].trafficInd,
-        TrafficW: pairB.filter(elem => elem.direction == 'W')[0].trafficInd
+        TrafficW: pairB.filter(elem => elem.direction == 'W')[0].trafficInd,
+        lon: intersection.lon,
+        lat: intersection.lat
       });
     }
     if(ligthDataSet) fetchTomTom();
