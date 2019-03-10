@@ -154,9 +154,17 @@ function calculateTraffic() {
           dirB.actualTimer = dirB.defaultTimer + scaledRatio;
         }
 
-        let totalCycle = dirA.defaultTimer + dirB.defaultTimer;
+        let totalCycle = dirA.actualTimer + dirB.actualTimer;
         let direction = secondsSinceLastChange % totalCycle;
-        let greenFor = direction <= dirA.defaultTimer ? 'A' : 'B';
+        let greenFor = direction <= dirA.actualTimer ? 'A' : 'B';
+
+        //logs --------------------------------
+        console.log(totalCycle);
+        console.log(direction);
+        console.log(greenFor);
+        
+        
+        //logs --------------------------------
 
         if (needSave) intersection.save().then(() =>{ console.log('save'); });
 
