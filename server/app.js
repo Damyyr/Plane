@@ -141,14 +141,13 @@ function calculateTraffic() {
         let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
         let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
 
-        let aToUpdate = dirA.defaultTimer + scaledRatio;
-        let bToUpdate = dirB.defaultTimer + scaledRatio;
+        let aToUpdate = dirA.defaultTimer + modA;
+        let bToUpdate = dirB.defaultTimer + modB;
 
         //logs --------------------------------
         // console.log(sumA);
         // console.log(sumB);
-        // console.log(modA);
-        // console.log(modB);
+        // console.log(ratio);
         // console.log(scaledRatio);
         // console.log(aToUpdate);
         // console.log(bToUpdate);
@@ -159,8 +158,8 @@ function calculateTraffic() {
         if ((dirA.actualTimer != aToUpdate) || (dirB.actualTimer != bToUpdate)) {
           needSave = true;
           intersection.lastChange = new Date;
-          dirA.actualTimer = dirA.defaultTimer + modA;
-          dirB.actualTimer = dirB.defaultTimer + modB;
+          dirA.actualTimer = aToUpdate;
+          dirB.actualTimer = bToUpdate;
         }
 
         let totalCycle = dirA.actualTimer + dirB.actualTimer;
