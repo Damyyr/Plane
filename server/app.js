@@ -139,10 +139,10 @@ io.on("connection", client => {
 
 function tomtomCall(lat, long) {
   let tomtom = {
-    TrafficN = 0,
-    TrafficS = 0,
-    TrafficE = 0,
-    TrafficW = 0
+    TrafficN: 0,
+    TrafficS: 0,
+    TrafficE: 0,
+    TrafficW: 0
   }
 
   let url = `https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point=${lat+0.0003}%2C${long}&unit=KMPH&key=${process.env.tomtomapi}`
