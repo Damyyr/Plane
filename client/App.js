@@ -7,6 +7,7 @@ import { MapView } from "expo";
 import imgCar from './assets/images/car.png';
 import imgLight from './assets/images/light.png';
 import calcDist from './components/utils'
+import Route from './route'
 
 import intersect from './assets/data/intersect.json'
 
@@ -18,6 +19,30 @@ const height = Dimensions.get('window').height;
 const green = "rgba(0, 153, 51, 0.8)";
 const red = "rgba(255, 51, 0, 0.8)";
 const orange = "rgba(255, 204, 0, 0.8)";
+
+const demoRoutePoints = [
+  {
+    latitude: 45.533475,
+    longitude: -73.570720,
+  },
+  {
+    latitude: 45.534085,
+    longitude: -73.570177,
+  },
+  {
+    latitude: 45.532798,
+    longitude: -73.567383,
+  },
+  {
+    latitude: 45.532179,
+    longitude: -73.567960,
+  },
+];
+
+let pointInRoute = 0;
+const speedOfRoute = 0.01;
+const carRefreshRate = 1000 / 60; // ms
+let demoRoute = new Route(demoRoutePoints);
 
 console.disableYellowBox = true;
 
@@ -209,19 +234,22 @@ export default class App extends React.Component {
       return elm.user;
     });
 
+    let newPositionCar = demoRoute.getPosition(pointInRoute);
+
     let newCar = {
       type:"marker",
       key:0,
       user: true,
       radius:15,
       // coordinate: {latitude: 46.816592, longitude: -71.200432},
-      coordinate: {latitude: petiteVoiture.coordinate.latitude + 0.0001
-                , longitude: -73.559118},
+      coordinate: newPositionCar,
       title:"title",
       description:"description",
       image:imgCar,
       color: 'rgba(230,238,255,0.5)'
     };
+
+    pointInRoute += speedOfRoute;
     
     marks.splice(indexToDelete, 1)
     marks.push(newCar);
@@ -230,7 +258,7 @@ export default class App extends React.Component {
   };
 
   componentDidMount = () => {
-     setInterval(this.moveCar, 1000);
+     setInterval(this.moveCar, carRefreshRate);
   }
 
   renderElementsMap = (marker) => {
