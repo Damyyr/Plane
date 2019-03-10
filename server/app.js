@@ -73,9 +73,9 @@ io.on("connection", client => {
     if (ligthDataSet === []) {
       loadLights(data.data);
       setTimeout(calculateTraffic, timeToRefresh);
-    } else {
-      ligthDataSet;
     }
+
+    client.emit('lightStates', { data: ligthDataSet })
 
 
     // IntersectModel.find({ 'Int_no': data.data }, (err, res) => {
