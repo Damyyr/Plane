@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, View, Dimensions, ScrollView,TouchableHighlight, Button } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, ScrollView,TouchableHighlight, TouchableOpacity, Button } from 'react-native';
 import Toast, {DURATION} from 'react-native-easy-toast'
 import { AppLoading, Asset, Font, Icon } from 'expo';
+import { MaterialIcons } from '@expo/vector-icons'
 import { MapView } from "expo";
 import imgCar from './assets/images/car.png';
 import imgLight from './assets/images/light.png';
@@ -39,8 +40,9 @@ export default class App extends React.Component {
       image:imgCar,
       color: 'rgba(230,238,255,0.5)'
     }],
-    socket: openSocket('https://planehack.herokuapp.com/')
-    // socket: openSocket('http://plane.mdamour.info')
+    tempMarkers: [],
+    // socket: openSocket('https://planehack.herokuapp.com/')
+    socket: openSocket('http://plane.mdamour.info')
   };
 
   componentWillMount = () => {
@@ -49,15 +51,52 @@ export default class App extends React.Component {
     })
 
     this.state.socket.on("lightStates", resp => {
-      console.log(resp.data);
+      let markerLights = []
+
+      // let markersToGet = this.getMarkersToGet()
+      // console.log(markersToGet);
+      // console.log(resp.data);
+
+      for (const light of resp.data) {
+        markerLights.push(this.changeLightColor(light))
+      }
+      this.setState({ tempMarkers: [...this.state.tempMarkers, markerLights] })
     })
 
-    // setInterval(this.serverCallLightState, 4000)
-    
     this.createMarkers();
+
+    setInterval(this.serverCallLightState, 3000)
   }
 
-  serverCallLightState = () => {
+  changeLightColor = (light) => {
+    let markerLights = this.state.markers.filter(elm => elm.id == light.Int_no)
+    for (let markerLight of markerLights) {
+      if (markerLight.id == light.Int_no && markerLight.type === "circle" && markerLight.title !== "Intersection" ) {
+        if (light.greenFor === "A") {
+          if (markerLight.dir === "N" || markerLight.dir === "S") {
+            markerLight.color = green
+          } else {
+            markerLight.color = red
+          }
+        } else {
+          if (markerLight.dir === "E" || markerLight.dir === "W") {
+            markerLight.color = green
+          } else {
+            markerLight.color = red
+          }
+        }
+        // if (markerLight.color == green) {
+        //   markerLight.color = red;
+        // } else {
+        //   markerLight.color = green;
+        // }
+      }
+    }
+
+    return markerLights;
+  }
+
+  getMarkersToGet = () => {
     let markersToGet = []
     for (let marker of this.state.markers.filter(elm => elm.title === "Intersection" && elm.type === "circle")) {
       if (calcDist(marker, this.state.markers.filter(elm => elm.user === true)[0]) > 1000) {
@@ -66,6 +105,11 @@ export default class App extends React.Component {
       
       markersToGet.push(marker.id)
     }
+    return markersToGet
+  }
+
+  serverCallLightState = () => {
+    let markersToGet = this.getMarkersToGet()
     this.state.socket.emit("lightStates", { data: markersToGet })
   }
 
@@ -136,6 +180,7 @@ export default class App extends React.Component {
       longitude: i.Long+long},
       image:imgLight,
       radius: 4,
+      dir: dir,
       color: (dir === "N" || dir === "S") ? green : red
     }
     let t = this.state.markers;
@@ -249,6 +294,11 @@ export default class App extends React.Component {
             </MapView>
           </View>
         </ScrollView>
+          <TouchableOpacity onPress={() => alert('FAB clicked!')} style={styles.fab}>
+            <Text style={styles.fabIcon}>
+              <MaterialIcons name="traffic" style={styles.fabIcon}/>
+            </Text>
+          </TouchableOpacity>
       </View>
       );
     }
@@ -304,5 +354,22 @@ const styles = StyleSheet.create({
   },
   toastText: {
     textAlign: 'center'
-  }
+  },
+  fab: {
+    position: 'absolute',
+    width: 65,
+    height: 65,
+    alignItems: 'center',
+    justifyContent: 'center',
+    right: 20,
+    bottom: 20,
+    backgroundColor: '#f43922',
+    borderRadius: 30,
+    elevation: 8
+  },
+  fabIcon: {
+    lineHeight: 42,
+    fontSize: 40,
+    color: 'white'
+  },
 });
