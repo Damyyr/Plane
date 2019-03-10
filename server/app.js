@@ -7,7 +7,7 @@ const axios = require('axios')
 const hostname = "localhost"
 const PORT = process.env.PORT || 8888
 
-afterConnection == false
+afterConnection = false
 
 const modifierBounds = [-3, 3]
 idsToUpdate = []
