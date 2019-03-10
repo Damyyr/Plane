@@ -133,8 +133,8 @@ function calculateTraffic() {
     // add this scaled ratio to each direction actualTimer
     let lastChange = intersection.lastChange;
     let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
-    let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
-    let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
+    let dirA = intersection.directions.filter(elem => elem.direction == 'A')[0];
+    let dirB = intersection.directions.filter(elem => elem.direction == 'B')[0];
     
     dirA.actualTimer = 2;
     dirB.actualTimer = 2;
