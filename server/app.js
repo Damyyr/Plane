@@ -123,7 +123,6 @@ function calculateTraffic() {
 
     ligthDataSet = []
     for (const intersection of res) {
-      try {
         let branches = intersection.branches;
 
         let pairA = branches.filter(elem => elem.direction = 'N' || elem.direction == 'S');
@@ -163,7 +162,6 @@ function calculateTraffic() {
           intersection.lastChange = new Date;
           dirA.actualTimer = aToUpdate;
           dirB.actualTimer = bToUpdate;
-          intersection.save().then(() =>{ console.log('save'); });
           console.log(intersection);
         }
 
@@ -185,12 +183,8 @@ function calculateTraffic() {
           Int_no: intersection.Int_no,
           greenFor: greenFor
         });
-
-      } catch (error) {
-        console.log(error);
-        console.log(intersection);
-      }
     }
+    res.save().then(() =>{ console.log('save'); });
   });
   console.log('Update Done');
   setTimeout(calculateTraffic, timeToRefresh);
