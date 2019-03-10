@@ -124,6 +124,7 @@ function calculateTraffic() {
         let sumB = pairB[0].trafficInd + pairB[1].trafficInd;
 
         // add this scaled ratio to each direction actualTimer
+        if(sumB === 0) sumB = 1;
         let ratio = ((sumA / sumB) * 100);
         let scaledRatio = Math.round(scale(ratio, 0, 200, modifierBounds[0], modifierBounds[1]));
 
@@ -136,12 +137,12 @@ function calculateTraffic() {
         let bToUpdate = dirB.defaultTimer + scaledRatio;
 
         //logs --------------------------------
-        console.log(sumA);
-        console.log(sumB);
-        console.log(ratio);
-        console.log(scaledRatio);
-        console.log(aToUpdate);
-        console.log(bToUpdate);
+        // console.log(sumA);
+        // console.log(sumB);
+        // console.log(ratio);
+        // console.log(scaledRatio);
+        // console.log(aToUpdate);
+        // console.log(bToUpdate);
         
         //logs --------------------------------
 
@@ -157,7 +158,7 @@ function calculateTraffic() {
         let direction = secondsSinceLastChange % totalCycle;
         let greenFor = direction <= dirA.defaultTimer ? 'A' : 'B';
 
-        if (needSave) intersection.save();
+        if (needSave) intersection.save().then(() =>{ console.log('save'); });
 
         ligthDataSet.push({
           Int_no: intersection.Int_no,
