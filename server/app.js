@@ -9,11 +9,11 @@ const PORT = process.env.PORT || 8888
 
 const modifierBounds = [ -3, 3 ]
 idsToUpdate = []
+ligthDataSet = []
 
 mongoose.connect(`mongodb://${process.env.dbuser}:${process.env.dbpassword}@ds163822.mlab.com:63822/plane`, option).then(
   () => {
      console.log('Successfully connected'); 
-     setTimeout(calculateTraffic, 3000);
     },
   err => { throw err }
 );
@@ -21,7 +21,7 @@ mongoose.connect(`mongodb://${process.env.dbuser}:${process.env.dbpassword}@ds16
 let branchesSchema = mongoose.Schema({
   currentTimer: Number,
   direction: String,
-  trafficInd: Number
+  trafficInd: Number // POURCENTAGE: N - 100 == congestion vers le nord
 })
 
 let directionSchema = mongoose.Schema({
@@ -50,6 +50,7 @@ function handleError(error) {
 }
 
 io.on("connection", client => {
+  setTimeout(calculateTraffic, 1000);
   console.log(`Sup bitch ${client.id}`);
 
   client.on('lightStates', data => {
@@ -57,25 +58,25 @@ io.on("connection", client => {
       if (err) return handleError(err);
 
       idsToUpdate = data.data
-      let response = []
-      for (const intersection of res) {
-        let lastChange = intersection.lastChange;
-        let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
-        let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
-        let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
+      // let response = []
+      // for (const intersection of res) {
+      //   let lastChange = intersection.lastChange;
+      //   let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
+      //   let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
+      //   let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
 
-        let totalCycle = dirA.defaultTimer + dirB.defaultTimer;
-        let direction = secondsSinceLastChange % totalCycle;
-        let greenFor = direction <= dirA.defaultTimer ? 'A' : 'B';
+      //   let totalCycle = dirA.defaultTimer + dirB.defaultTimer;
+      //   let direction = secondsSinceLastChange % totalCycle;
+      //   let greenFor = direction <= dirA.defaultTimer ? 'A' : 'B';
 
-        response.push({
-          Int_no: intersection.Int_no,
-          greenFor: greenFor
-        });
-      }
+      //   response.push({
+      //     Int_no: intersection.Int_no,
+      //     greenFor: greenFor
+      //   });
+      // }
 
       teeest();
-      client.emit('lightStates', { data: response })
+      client.emit('lightStates', { data: ligthDataSet })
     });
   });
 
@@ -104,6 +105,54 @@ io.on("connection", client => {
 function teeest(){
   console.log('idsToUpdate');
   console.log(idsToUpdate);
+}
+
+function calculateTraffic(){
+  IntersectModel.find({ 'Int_no': idsToUpdate }, (err, res) => {
+    if (err) return handleError(err);
+
+    ligthDataSet = []
+    for (const intersection of res) {
+      branches = intersection.branchesSchema;
+
+      pairA = branches.filter(elem => elem.direction = 'N' || elem.direction == 'S');
+      pairB = branches.filter(elem => elem.direction = 'E' || elem.direction == 'W');
+
+      sumA = pairA[0].trafficInd + pairA[1].trafficInd;
+      sumB = pairB[0].trafficInd + pairB[1].trafficInd;
+
+      // add this scaled ratio to each direction actualTimer
+      ratio = ((sumA/sumB) * 100);
+      scaledRatio = scale(ratio, 0, 200, modifierBounds[0], modifierBounds[1]);
+
+      let lastChange = intersection.lastChange;
+      let secondsSinceLastChange = Math.round((new Date - lastChange) / 1000);
+      let dirA = intersection.directions.filter(elem => elem.direction = 'A')[0];
+      let dirB = intersection.directions.filter(elem => elem.direction = 'B')[0];
+
+      aToUpdate = dirA.defaultTimer + scaledRatio;
+      bToUpdate = dirB.defaultTimer + scaledRatio;
+
+      let needSave = false;
+      if((dirA.actualTimer != aToUpdate) || (dirB.actualTimer != bToUpdate)){
+        needSave = true;
+        intersection.lastChange = new Date;
+        dirA.actualTimer = dirA.defaultTimer + scaledRatio;
+        dirB.actualTimer = dirB.defaultTimer + scaledRatio;
+      }
+
+      let totalCycle = dirA.defaultTimer + dirB.defaultTimer;
+      let direction = secondsSinceLastChange % totalCycle;
+      let greenFor = direction <= dirA.defaultTimer ? 'A' : 'B';
+
+      if(needSave) intersection.save();
+
+      ligthDataSet.push({
+        Int_no: intersection.Int_no,
+        greenFor: greenFor
+      });
+    }
+  });
 }
 
 function algoVraimentComplique(flowData) {
